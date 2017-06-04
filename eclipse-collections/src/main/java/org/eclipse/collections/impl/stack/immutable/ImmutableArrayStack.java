@@ -61,6 +61,8 @@ import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.map.primitive.ImmutableObjectDoubleMap;
 import org.eclipse.collections.api.map.primitive.ImmutableObjectLongMap;
+import org.eclipse.collections.api.map.primitive.ObjectDoubleMap;
+import org.eclipse.collections.api.map.primitive.ObjectLongMap;
 import org.eclipse.collections.api.map.sorted.MutableSortedMap;
 import org.eclipse.collections.api.multimap.MutableMultimap;
 import org.eclipse.collections.api.multimap.list.ImmutableListMultimap;
@@ -138,7 +140,7 @@ final class ImmutableArrayStack<T> implements ImmutableStack<T>, Serializable
 
     public static <T> ImmutableArrayStack<T> newStackFromTopToBottom(Iterable<? extends T> items)
     {
-        return new ImmutableArrayStack<T>(FastList.newList(items).reverseThis());
+        return new ImmutableArrayStack<>(FastList.<T>newList(items).reverseThis());
     }
 
     public static <T> ImmutableArrayStack<T> newStackFromTopToBottom(T... items)
@@ -801,25 +803,29 @@ final class ImmutableArrayStack<T> implements ImmutableStack<T>, Serializable
     @Override
     public <V> ImmutableObjectLongMap<V> sumByInt(Function<? super T, ? extends V> groupBy, IntFunction<? super T> function)
     {
-        return this.delegate.asReversed().sumByInt(groupBy, function).toImmutable();
+        ObjectLongMap<V> map = this.delegate.asReversed().sumByInt(groupBy, function);
+        return map.toImmutable();
     }
 
     @Override
     public <V> ImmutableObjectDoubleMap<V> sumByFloat(Function<? super T, ? extends V> groupBy, FloatFunction<? super T> function)
     {
-        return this.delegate.asReversed().sumByFloat(groupBy, function).toImmutable();
+        ObjectDoubleMap<V> map = this.delegate.asReversed().sumByFloat(groupBy, function);
+        return map.toImmutable();
     }
 
     @Override
     public <V> ImmutableObjectLongMap<V> sumByLong(Function<? super T, ? extends V> groupBy, LongFunction<? super T> function)
     {
-        return this.delegate.asReversed().sumByLong(groupBy, function).toImmutable();
+        ObjectLongMap<V> map = this.delegate.asReversed().sumByLong(groupBy, function);
+        return map.toImmutable();
     }
 
     @Override
     public <V> ImmutableObjectDoubleMap<V> sumByDouble(Function<? super T, ? extends V> groupBy, DoubleFunction<? super T> function)
     {
-        return this.delegate.asReversed().sumByDouble(groupBy, function).toImmutable();
+        ObjectDoubleMap<V> map = this.delegate.asReversed().sumByDouble(groupBy, function);
+        return map.toImmutable();
     }
 
     @Override

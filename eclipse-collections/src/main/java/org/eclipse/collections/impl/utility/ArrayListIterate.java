@@ -104,19 +104,13 @@ public final class ArrayListIterate
         {
             data = ArrayList.class.getDeclaredField("elementData");
             size = ArrayList.class.getDeclaredField("size");
-            try
-            {
-                data.setAccessible(true);
-                size.setAccessible(true);
-            }
-            catch (SecurityException ignored)
-            {
-                data = null;
-                size = null;
-            }
+            data.setAccessible(true);
+            size.setAccessible(true);
         }
-        catch (NoSuchFieldException ignored)
+        catch (Exception ignored)
         {
+            data = null;
+            size = null;
         }
         ELEMENT_DATA_FIELD = data;
         SIZE_FIELD = size;
@@ -789,8 +783,8 @@ public final class ArrayListIterate
      * list is iterated in the reverse order.
      * <p>
      * <pre>e.g.
-     * ArrayList<People> people = new ArrayList<People>(FastList.newListWith(ted, mary, bob, sally));
-     * ArrayListIterate.forEach(people, 0, 1, new Procedure<Person>()
+     * ArrayList<People> people = new ArrayList&lt;People&gt;(FastList.newListWith(ted, mary, bob, sally));
+     * ArrayListIterate.forEach(people, 0, 1, new Procedure&lt;Person&gt;()
      * {
      *     public void value(Person person)
      *     {
@@ -823,8 +817,8 @@ public final class ArrayListIterate
      * range.
      * <p>
      * <pre>e.g.
-     * ArrayList<People> people = new ArrayList<People>(FastList.newListWith(ted, mary, bob, sally));
-     * ArrayListIterate.forEachWithIndex(people, 0, 1, new ObjectIntProcedure<Person>()
+     * ArrayList<People> people = new ArrayList&lt;People&gt;(FastList.newListWith(ted, mary, bob, sally));
+     * ArrayListIterate.forEachWithIndex(people, 0, 1, new ObjectIntProcedure&lt;Person&gt;()
      * {
      *     public void value(Person person, int index)
      *     {

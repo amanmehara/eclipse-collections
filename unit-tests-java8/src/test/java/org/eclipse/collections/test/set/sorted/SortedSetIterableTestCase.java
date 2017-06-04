@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -11,9 +11,11 @@
 package org.eclipse.collections.test.set.sorted;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.ordered.OrderedIterable;
 import org.eclipse.collections.api.ordered.SortedIterable;
 import org.eclipse.collections.api.set.sorted.MutableSortedSet;
 import org.eclipse.collections.api.set.sorted.SortedSetIterable;
@@ -95,9 +97,23 @@ public interface SortedSetIterableTestCase extends SetIterableTestCase, SortedIt
     }
 
     @Override
+    @Test
+    default void OrderedIterable_getFirstOptional()
+    {
+        assertEquals(Optional.of(Integer.valueOf(3)), ((OrderedIterable<?>) this.newWith(3, 2, 1)).getFirstOptional());
+    }
+
+    @Override
     default void OrderedIterable_getLast()
     {
         assertEquals(Integer.valueOf(1), this.newWith(3, 2, 1).getLast());
+    }
+
+    @Override
+    @Test
+    default void OrderedIterable_getLastOptional()
+    {
+        assertEquals(Optional.of(Integer.valueOf(1)), ((OrderedIterable<?>) this.newWith(3, 2, 1)).getLastOptional());
     }
 
     @Override

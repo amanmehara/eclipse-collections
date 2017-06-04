@@ -165,17 +165,17 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
 
     public static \<K> Object<name>HashMapWithHashingStrategy\<K> newMap(HashingStrategy\<? super K> hashingStrategy)
     {
-        return new Object<name>HashMapWithHashingStrategy\<K>(hashingStrategy);
+        return new Object<name>HashMapWithHashingStrategy\<>(hashingStrategy);
     }
 
     public static \<K> Object<name>HashMapWithHashingStrategy\<K> newMap(HashingStrategy\<? super K> hashingStrategy, Object<name>Map\<K> map)
     {
-        return new Object<name>HashMapWithHashingStrategy\<K>(hashingStrategy, map);
+        return new Object<name>HashMapWithHashingStrategy\<>(hashingStrategy, map);
     }
 
     public static \<K> Object<name>HashMapWithHashingStrategy\<K> newMap(Object<name>HashMapWithHashingStrategy\<K> map)
     {
-        return new Object<name>HashMapWithHashingStrategy\<K>(map.hashingStrategy, map);
+        return new Object<name>HashMapWithHashingStrategy\<>(map.hashingStrategy, map);
     }
 
     public static \<K> Object<name>HashMapWithHashingStrategy\<K> newWithKeysValues(HashingStrategy\<? super K> hashingStrategy, K key1, <type> value1)
@@ -285,31 +285,37 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return appendable.toString();
     }
 
+    @Override
     public int size()
     {
         return this.occupiedWithData;
     }
 
+    @Override
     public boolean isEmpty()
     {
         return this.size() == 0;
     }
 
+    @Override
     public boolean notEmpty()
     {
         return this.size() != 0;
     }
 
+    @Override
     public String makeString()
     {
         return this.makeString(", ");
     }
 
+    @Override
     public String makeString(String separator)
     {
         return this.makeString("", separator, "");
     }
 
+    @Override
     public String makeString(String start, String separator, String end)
     {
         Appendable stringBuilder = new StringBuilder();
@@ -317,16 +323,19 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return stringBuilder.toString();
     }
 
+    @Override
     public void appendString(Appendable appendable)
     {
         this.appendString(appendable, ", ");
     }
 
+    @Override
     public void appendString(Appendable appendable, String separator)
     {
         this.appendString(appendable, "", separator, "");
     }
 
+    @Override
     public void appendString(Appendable appendable, String start, String separator, String end)
     {
         try
@@ -356,11 +365,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public Mutable<name>Iterator <type>Iterator()
     {
         return new Internal<name>Iterator();
     }
 
+    @Override
     public <type>[] toArray()
     {
         <type>[] result = new <type>[this.size()];
@@ -377,11 +388,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public boolean contains(<type> value)
     {
         return this.containsValue(value);
     }
 
+    @Override
     public boolean containsAll(<type>... source)
     {
         for (<type> item : source)
@@ -394,11 +407,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return true;
     }
 
+    @Override
     public boolean containsAll(<name>Iterable source)
     {
         return this.containsAll(source.toArray());
     }
 
+    @Override
     public void clear()
     {
         this.occupiedWithData = 0;
@@ -407,6 +422,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         Arrays.fill(this.values, EMPTY_VALUE);
     }
 
+    @Override
     public void put(K key, <type> value)
     {
         int index = this.probe(key);
@@ -421,17 +437,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         this.addKeyValueAtIndex(key, value, index);
     }
 
+    @Override
     public void putAll(Object<name>Map\<? extends K> map)
     {
-        map.forEachKeyValue(new Object<name>Procedure\<K>()
-        {
-            public void value(K key, <type> value)
-            {
-                Object<name>HashMapWithHashingStrategy.this.put(key, value);
-            }
-        });
+        map.forEachKeyValue(this::put);
     }
 
+    @Override
     public void removeKey(K key)
     {
         int index = this.probe(key);
@@ -449,11 +461,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public void remove(Object key)
     {
         this.removeKey((K) key);
     }
 
+    @Override
     public <type> removeKeyIfAbsent(K key, <type> value)
     {
         int index = this.probe(key);
@@ -470,6 +484,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return value;
     }
 
+    @Override
     public <type> getIfAbsentPut(K key, <type> value)
     {
         int index = this.probe(key);
@@ -481,6 +496,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return value;
     }
 
+    @Override
     public <type> getIfAbsentPut(K key, <name>Function0 function)
     {
         int index = this.probe(key);
@@ -493,6 +509,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return value;
     }
 
+    @Override
     public \<P> <type> getIfAbsentPutWith(K key, <name>Function\<? super P> function, P parameter)
     {
         int index = this.probe(key);
@@ -505,6 +522,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return value;
     }
 
+    @Override
     public <type> getIfAbsentPutWithKey(K key, <name>Function\<? super K> function)
     {
         int index = this.probe(key);
@@ -517,6 +535,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return value;
     }
 
+    @Override
     public <type> updateValue(K key, <type> initialValueIfAbsent, <name>To<name>Function function)
     {
         int index = this.probe(key);
@@ -545,6 +564,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public <type> addToValue(K key, <type> toBeAdded)
     {
         int index = this.probe(key);
@@ -557,6 +577,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return this.values[index];
     }
 
+    @Override
     public Object<name>HashMapWithHashingStrategy\<K> withKeyValue(K key1, <type> value1)
     {
         this.put(key1, value1);
@@ -587,12 +608,14 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return this;
     }
 
+    @Override
     public Object<name>HashMapWithHashingStrategy\<K> withoutKey(K key)
     {
         this.removeKey(key);
         return this;
     }
 
+    @Override
     public Object<name>HashMapWithHashingStrategy\<K> withoutAllKeys(Iterable\<? extends K> keys)
     {
         for (K key : keys)
@@ -602,26 +625,31 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return this;
     }
 
+    @Override
     public MutableObject<name>Map\<K> asUnmodifiable()
     {
-        return new UnmodifiableObject<name>Map\<K>(this);
+        return new UnmodifiableObject<name>Map\<>(this);
     }
 
+    @Override
     public MutableObject<name>Map\<K> asSynchronized()
     {
-        return new SynchronizedObject<name>Map\<K>(this);
+        return new SynchronizedObject<name>Map\<>(this);
     }
 
+    @Override
     public ImmutableObject<name>Map\<K> toImmutable()
     {
         return Object<name>Maps.immutable.withAll(this);
     }
 
+    @Override
     public <type> get(Object key)
     {
         return this.getIfAbsent(key, EMPTY_VALUE);
     }
 
+    @Override
     public <type> getOrThrow(Object key)
     {
         int index = this.probe(key);
@@ -632,6 +660,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         throw new IllegalStateException("Key " + key + " not present.");
     }
 
+    @Override
     public <type> getIfAbsent(Object key, <type> ifAbsent)
     {
         int index = this.probe(key);
@@ -642,12 +671,14 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return ifAbsent;
     }
 
+    @Override
     public boolean containsKey(Object key)
     {
         int index = this.probe(key);
         return isNonSentinel(this.keys[index]) && this.nullSafeEquals(this.toNonSentinel(this.keys[index]), key);
     }
 
+    @Override
     public boolean containsValue(<type> value)
     {
         for (int i = 0; i \< this.values.length; i++)
@@ -660,16 +691,19 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return false;
     }
 
+    @Override
     public void forEach(<name>Procedure procedure)
     {
         this.each(procedure);
     }
 
+    @Override
     public void each(<name>Procedure procedure)
     {
         this.forEachValue(procedure);
     }
 
+    @Override
     public void forEachValue(<name>Procedure procedure)
     {
         for (int i = 0; i \< this.keys.length; i++)
@@ -681,6 +715,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public void forEachKey(Procedure\<? super K> procedure)
     {
         for (int i = 0; i \< this.keys.length; i++)
@@ -692,6 +727,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public void forEachKeyValue(Object<name>Procedure\<? super K> procedure)
     {
         for (int i = 0; i \< this.keys.length; i++)
@@ -703,6 +739,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public Object<name>HashMapWithHashingStrategy\<K> select(Object<name>Predicate\<? super K> predicate)
     {
         Object<name>HashMapWithHashingStrategy\<K> result = Object<name>HashMapWithHashingStrategy.newMap(this.hashingStrategy);
@@ -717,6 +754,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public Object<name>HashMapWithHashingStrategy\<K> reject(Object<name>Predicate\<? super K> predicate)
     {
         Object<name>HashMapWithHashingStrategy\<K> result = Object<name>HashMapWithHashingStrategy.newMap(this.hashingStrategy);
@@ -731,6 +769,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public Mutable<name>Collection select(<name>Predicate predicate)
     {
         <name>ArrayList result = new <name>ArrayList();
@@ -745,6 +784,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public Mutable<name>Collection reject(<name>Predicate predicate)
     {
         <name>ArrayList result = new <name>ArrayList();
@@ -759,6 +799,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public <type> detectIfNone(<name>Predicate predicate, <type> ifNone)
     {
         for (int i = 0; i \< this.keys.length; i++)
@@ -771,6 +812,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return ifNone;
     }
 
+    @Override
     public \<V> MutableCollection\<V> collect(<name>ToObjectFunction\<? extends V> function)
     {
         MutableList\<V> result = FastList.newList(this.size());
@@ -784,6 +826,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public int count(<name>Predicate predicate)
     {
         int count = 0;
@@ -798,6 +841,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return count;
     }
 
+    @Override
     public boolean anySatisfy(<name>Predicate predicate)
     {
         for (int i = 0; i \< this.keys.length; i++)
@@ -810,6 +854,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return false;
     }
 
+    @Override
     public boolean allSatisfy(<name>Predicate predicate)
     {
         for (int i = 0; i \< this.keys.length; i++)
@@ -822,6 +867,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return true;
     }
 
+    @Override
     public boolean noneSatisfy(<name>Predicate predicate)
     {
         for (int i = 0; i \< this.keys.length; i++)
@@ -834,6 +880,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return true;
     }
 
+    @Override
     public \<V> V injectInto(V injectedValue, Object<name>ToObjectFunction\<? super V, ? extends V> function)
     {
         V result = injectedValue;
@@ -849,6 +896,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     <if(primitive.floatingPoint)>public <wideType.(type)> sum()
 {
     <wideType.(type)> result = <wideZero.(type)>;
@@ -882,6 +930,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
 }
 
     <endif>
+    @Override
     public <type> max()
     {
         if (this.isEmpty())
@@ -902,6 +951,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return max;
     }
 
+    @Override
     public <type> min()
     {
         if (this.isEmpty())
@@ -922,6 +972,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return min;
     }
 
+    @Override
     public <type> maxIfEmpty(<type> defaultValue)
     {
         if (this.isEmpty())
@@ -942,6 +993,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return max;
     }
 
+    @Override
     public <type> minIfEmpty(<type> defaultValue)
     {
         if (this.isEmpty())
@@ -962,6 +1014,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return min;
     }
 
+    @Override
     public double average()
     {
         if (this.isEmpty())
@@ -971,6 +1024,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return <castSum.(type)>this.sum() / (double) this.size();
     }
 
+    @Override
     public double median()
     {
         if (this.isEmpty())
@@ -988,6 +1042,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return (double) sortedArray[middleIndex];
     }
 
+    @Override
     public Mutable<name>List toList()
     {
         Mutable<name>List result = new <name>ArrayList(this.size());
@@ -1002,6 +1057,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public Mutable<name>Set toSet()
     {
         Mutable<name>Set result = new <name>HashSet(this.size());
@@ -1016,6 +1072,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public Mutable<name>Bag toBag()
     {
         Mutable<name>Bag result = new <name>HashBag(this.size());
@@ -1030,11 +1087,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return result;
     }
 
+    @Override
     public Lazy<name>Iterable asLazy()
     {
         return new Lazy<name>IterableAdapter(this);
     }
 
+    @Override
     public <type>[] toSortedArray()
     {
         <type>[] array = this.toArray();
@@ -1042,11 +1101,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         return array;
     }
 
+    @Override
     public Mutable<name>List toSortedList()
     {
         return this.toList().sortThis();
     }
 
+    @Override
     public void writeExternal(ObjectOutput out) throws IOException
     {
         out.writeObject(this.hashingStrategy);
@@ -1061,6 +1122,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
     {
         this.hashingStrategy = (HashingStrategy\<? super K>) in.readObject();
@@ -1074,11 +1136,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public LazyIterable\<K> keysView()
     {
         return new KeysView();
     }
 
+    @Override
     public RichIterable\<Object<name>Pair\<K>\> keyValuesView()
     {
         return new KeyValuesView();
@@ -1235,11 +1299,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         private int count;
         private int position;
 
+        @Override
         public boolean hasNext()
         {
             return this.count != Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public <type> next()
         {
             if (!this.hasNext())
@@ -1258,6 +1324,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return result;
         }
 
+        @Override
         public void remove()
         {
             if (this.position == 0 || !isNonSentinel(Object<name>HashMapWithHashingStrategy.this.keys[this.position - 1]))
@@ -1269,11 +1336,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         }
     }
 
+    @Override
     public Set\<K> keySet()
     {
         return new KeySet();
     }
 
+    @Override
     public Mutable<name>Collection values()
     {
         return new ValuesCollection();
@@ -1312,21 +1381,25 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return hashCode;
         }
 
+        @Override
         public int size()
         {
             return Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public boolean isEmpty()
         {
             return Object<name>HashMapWithHashingStrategy.this.isEmpty();
         }
 
+        @Override
         public boolean contains(Object o)
         {
             return Object<name>HashMapWithHashingStrategy.this.containsKey(o);
         }
 
+        @Override
         public Object[] toArray()
         {
             int size = Object<name>HashMapWithHashingStrategy.this.size();
@@ -1335,6 +1408,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return result;
         }
 
+        @Override
         public \<T> T[] toArray(T[] result)
         {
             int size = Object<name>HashMapWithHashingStrategy.this.size();
@@ -1350,11 +1424,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return result;
         }
 
+        @Override
         public boolean add(K key)
         {
             throw new UnsupportedOperationException("Cannot call add() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public boolean remove(Object key)
         {
             int oldSize = Object<name>HashMapWithHashingStrategy.this.size();
@@ -1362,6 +1438,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return oldSize != Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public boolean containsAll(Collection\<?> collection)
         {
             for (Object aCollection : collection)
@@ -1374,11 +1451,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return true;
         }
 
+        @Override
         public boolean addAll(Collection\<? extends K> collection)
         {
             throw new UnsupportedOperationException("Cannot call addAll() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public boolean retainAll(Collection\<?> collection)
         {
             int oldSize = Object<name>HashMapWithHashingStrategy.this.size();
@@ -1394,6 +1473,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return oldSize != Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public boolean removeAll(Collection\<?> collection)
         {
             int oldSize = Object<name>HashMapWithHashingStrategy.this.size();
@@ -1404,11 +1484,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return oldSize != Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public void clear()
         {
             Object<name>HashMapWithHashingStrategy.this.clear();
         }
 
+        @Override
         public Iterator\<K> iterator()
         {
             return new KeySetIterator();
@@ -1435,11 +1517,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
         private K currentKey;
         private boolean isCurrentKeySet;
 
+        @Override
         public boolean hasNext()
         {
             return this.count \< Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public K next()
         {
             if (!this.hasNext())
@@ -1458,6 +1542,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return Object<name>HashMapWithHashingStrategy.this.toNonSentinel(this.currentKey);
         }
 
+        @Override
         public void remove()
         {
             if (!this.isCurrentKeySet)
@@ -1482,31 +1567,37 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
 
     private class ValuesCollection implements Mutable<name>Collection
     {
+        @Override
         public int size()
         {
             return Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public boolean isEmpty()
         {
             return Object<name>HashMapWithHashingStrategy.this.isEmpty();
         }
 
+        @Override
         public boolean notEmpty()
         {
             return Object<name>HashMapWithHashingStrategy.this.notEmpty();
         }
 
+        @Override
         public String makeString()
         {
             return this.makeString(", ");
         }
 
+        @Override
         public String makeString(String separator)
         {
             return this.makeString("", separator, "");
         }
 
+        @Override
         public String makeString(String start, String separator, String end)
         {
             Appendable stringBuilder = new StringBuilder();
@@ -1514,16 +1605,19 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return stringBuilder.toString();
         }
 
+        @Override
         public void appendString(Appendable appendable)
         {
             this.appendString(appendable, ", ");
         }
 
+        @Override
         public void appendString(Appendable appendable, String separator)
         {
             this.appendString(appendable, "", separator, "");
         }
 
+        @Override
         public void appendString(Appendable appendable, String start, String separator, String end)
         {
             try
@@ -1553,21 +1647,25 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             }
         }
 
+        @Override
         public boolean add(<type> element)
         {
             throw new UnsupportedOperationException("Cannot call add() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public boolean addAll(<type>... source)
         {
             throw new UnsupportedOperationException("Cannot call addAll() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public boolean addAll(<name>Iterable source)
         {
             throw new UnsupportedOperationException("Cannot call addAll() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public boolean remove(<type> item)
         {
             int oldSize = Object<name>HashMapWithHashingStrategy.this.size();
@@ -1582,6 +1680,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return oldSize != Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public boolean removeAll(<name>Iterable source)
         {
             int oldSize = Object<name>HashMapWithHashingStrategy.this.size();
@@ -1594,6 +1693,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return oldSize != Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public boolean removeAll(<type>... source)
         {
             int oldSize = Object<name>HashMapWithHashingStrategy.this.size();
@@ -1605,17 +1705,12 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return oldSize != Object<name>HashMapWithHashingStrategy.this.size();
         }
 
+        @Override
         public boolean retainAll(<name>Iterable source)
         {
             int oldSize = Object<name>HashMapWithHashingStrategy.this.size();
             final <name>Set sourceSet = source instanceof <name>Set ? (<name>Set) source : source.toSet();
-            Object<name>HashMapWithHashingStrategy\<K> retained = Object<name>HashMapWithHashingStrategy.this.select(new Object<name>Predicate\<K>()
-            {
-                public boolean accept(K object, <type> value)
-                {
-                    return sourceSet.contains(value);
-                }
-            });
+            Object<name>HashMapWithHashingStrategy\<K> retained = Object<name>HashMapWithHashingStrategy.this.select((K object, <type> value) -> sourceSet.contains(value));
             if (retained.size() != oldSize)
             {
                 Object<name>HashMapWithHashingStrategy.this.keys = retained.keys;
@@ -1627,191 +1722,229 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             return false;
         }
 
+        @Override
         public boolean retainAll(<type>... source)
         {
             return this.retainAll(<name>HashSet.newSetWith(source));
         }
 
+        @Override
         public void clear()
         {
             Object<name>HashMapWithHashingStrategy.this.clear();
         }
 
+        @Override
         public Mutable<name>Collection with(<type> element)
         {
             throw new UnsupportedOperationException("Cannot call with() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public Mutable<name>Collection without(<type> element)
         {
             throw new UnsupportedOperationException("Cannot call without() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public Mutable<name>Collection withAll(<name>Iterable elements)
         {
             throw new UnsupportedOperationException("Cannot call withAll() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public Mutable<name>Collection withoutAll(<name>Iterable elements)
         {
             throw new UnsupportedOperationException("Cannot call withoutAll() on " + this.getClass().getSimpleName());
         }
 
+        @Override
         public Mutable<name>Collection asUnmodifiable()
         {
             return Unmodifiable<name>Collection.of(this);
         }
 
+        @Override
         public Mutable<name>Collection asSynchronized()
         {
             return Synchronized<name>Collection.of(this);
         }
 
+        @Override
         public Immutable<name>Collection toImmutable()
         {
             return <name>Lists.immutable.withAll(this);
         }
 
+        @Override
         public Mutable<name>Iterator <type>Iterator()
         {
             return Object<name>HashMapWithHashingStrategy.this.<type>Iterator();
         }
 
+        @Override
         public <type>[] toArray()
         {
             return Object<name>HashMapWithHashingStrategy.this.toArray();
         }
 
+        @Override
         public boolean contains(<type> value)
         {
             return Object<name>HashMapWithHashingStrategy.this.containsValue(value);
         }
 
+        @Override
         public boolean containsAll(<type>... source)
         {
             return Object<name>HashMapWithHashingStrategy.this.containsAll(source);
         }
 
+        @Override
         public boolean containsAll(<name>Iterable source)
         {
             return Object<name>HashMapWithHashingStrategy.this.containsAll(source);
         }
 
+        @Override
         public void forEach(<name>Procedure procedure)
         {
             Object<name>HashMapWithHashingStrategy.this.forEach(procedure);
         }
 
+        @Override
         public void each(<name>Procedure procedure)
         {
             this.forEach(procedure);
         }
 
+        @Override
         public Mutable<name>Collection select(<name>Predicate predicate)
         {
             return Object<name>HashMapWithHashingStrategy.this.select(predicate);
         }
 
+        @Override
         public Mutable<name>Collection reject(<name>Predicate predicate)
         {
             return Object<name>HashMapWithHashingStrategy.this.reject(predicate);
         }
 
+        @Override
         public \<V> MutableCollection\<V> collect(<name>ToObjectFunction\<? extends V> function)
         {
             return Object<name>HashMapWithHashingStrategy.this.collect(function);
         }
 
+        @Override
         public \<T> T injectInto(T injectedValue, Object<name>ToObjectFunction\<? super T, ? extends T> function)
         {
             return Object<name>HashMapWithHashingStrategy.this.injectInto(injectedValue, function);
         }
 
+        @Override
         public <type> detectIfNone(<name>Predicate predicate, <type> ifNone)
         {
             return Object<name>HashMapWithHashingStrategy.this.detectIfNone(predicate, ifNone);
         }
 
+        @Override
         public int count(<name>Predicate predicate)
         {
             return Object<name>HashMapWithHashingStrategy.this.count(predicate);
         }
 
+        @Override
         public boolean anySatisfy(<name>Predicate predicate)
         {
             return Object<name>HashMapWithHashingStrategy.this.anySatisfy(predicate);
         }
 
+        @Override
         public boolean allSatisfy(<name>Predicate predicate)
         {
             return Object<name>HashMapWithHashingStrategy.this.allSatisfy(predicate);
         }
 
+        @Override
         public boolean noneSatisfy(<name>Predicate predicate)
         {
             return Object<name>HashMapWithHashingStrategy.this.noneSatisfy(predicate);
         }
 
+        @Override
         public Mutable<name>List toList()
         {
             return Object<name>HashMapWithHashingStrategy.this.toList();
         }
 
+        @Override
         public Mutable<name>Set toSet()
         {
             return Object<name>HashMapWithHashingStrategy.this.toSet();
         }
 
+        @Override
         public Mutable<name>Bag toBag()
         {
             return Object<name>HashMapWithHashingStrategy.this.toBag();
         }
 
+        @Override
         public Lazy<name>Iterable asLazy()
         {
             return new Lazy<name>IterableAdapter(this);
         }
 
+        @Override
         public <type>[] toSortedArray()
         {
             return Object<name>HashMapWithHashingStrategy.this.toSortedArray();
         }
 
+        @Override
         public Mutable<name>List toSortedList()
         {
             return Object<name>HashMapWithHashingStrategy.this.toSortedList();
         }
 
+        @Override
         public <wideType.(type)> sum()
         {
             return Object<name>HashMapWithHashingStrategy.this.sum();
         }
 
+        @Override
         public <type> max()
         {
             return Object<name>HashMapWithHashingStrategy.this.max();
         }
 
+        @Override
         public <type> maxIfEmpty(<type> defaultValue)
         {
             return Object<name>HashMapWithHashingStrategy.this.maxIfEmpty(defaultValue);
         }
 
+        @Override
         public <type> min()
         {
             return Object<name>HashMapWithHashingStrategy.this.min();
         }
 
+        @Override
         public <type> minIfEmpty(<type> defaultValue)
         {
             return Object<name>HashMapWithHashingStrategy.this.minIfEmpty(defaultValue);
         }
 
+        @Override
         public double average()
         {
             return Object<name>HashMapWithHashingStrategy.this.average();
         }
 
+        @Override
         public double median()
         {
             return Object<name>HashMapWithHashingStrategy.this.median();
@@ -1820,11 +1953,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
 
     private class KeysView extends AbstractLazyIterable\<K>
     {
+        @Override
         public void each(Procedure\<? super K> procedure)
         {
             Object<name>HashMapWithHashingStrategy.this.forEachKey(procedure);
         }
 
+        @Override
         public void forEachWithIndex(ObjectIntProcedure\<? super K> object<name>Procedure)
         {
             int index = 0;
@@ -1838,6 +1973,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             }
         }
 
+        @Override
         public \<P> void forEachWith(Procedure2\<? super K, ? super P> procedure, P parameter)
         {
             for (int i = 0; i \< Object<name>HashMapWithHashingStrategy.this.keys.length; i++)
@@ -1849,6 +1985,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             }
         }
 
+        @Override
         public Iterator\<K> iterator()
         {
             return new InternalKeysViewIterator();
@@ -1859,6 +1996,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             private int count;
             private int position;
 
+            @Override
             public K next()
             {
                 if (!this.hasNext())
@@ -1877,11 +2015,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
                 return result;
             }
 
+            @Override
             public void remove()
             {
                 throw new UnsupportedOperationException("Cannot call remove() on " + this.getClass().getSimpleName());
             }
 
+            @Override
             public boolean hasNext()
             {
                 return this.count != Object<name>HashMapWithHashingStrategy.this.size();
@@ -1891,6 +2031,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
 
     private class KeyValuesView extends AbstractLazyIterable\<Object<name>Pair\<K>\>
     {
+        @Override
         public void each(Procedure\<? super Object<name>Pair\<K>\> procedure)
         {
             for (int i = 0; i \< Object<name>HashMapWithHashingStrategy.this.keys.length; i++)
@@ -1902,6 +2043,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             }
         }
 
+        @Override
         public void forEachWithIndex(ObjectIntProcedure\<? super Object<name>Pair\<K>\> objectIntProcedure)
         {
             int index = 0;
@@ -1915,6 +2057,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             }
         }
 
+        @Override
         public \<P> void forEachWith(Procedure2\<? super Object<name>Pair\<K>, ? super P> procedure, P parameter)
         {
             for (int i = 0; i \< Object<name>HashMapWithHashingStrategy.this.keys.length; i++)
@@ -1926,6 +2069,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             }
         }
 
+        @Override
         public Iterator\<Object<name>Pair\<K>\> iterator()
         {
             return new InternalKeyValuesIterator();
@@ -1936,6 +2080,7 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
             private int count;
             private int position;
 
+            @Override
             public Object<name>Pair\<K> next()
             {
                 if (!this.hasNext())
@@ -1954,11 +2099,13 @@ public class Object<name>HashMapWithHashingStrategy\<K> implements MutableObject
                 return result;
             }
 
+            @Override
             public void remove()
             {
                 throw new UnsupportedOperationException("Cannot call remove() on " + this.getClass().getSimpleName());
             }
 
+            @Override
             public boolean hasNext()
             {
                 return this.count != Object<name>HashMapWithHashingStrategy.this.size();

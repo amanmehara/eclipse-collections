@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.LongSummaryStatistics;
 import java.util.Optional;
 import java.util.RandomAccess;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
@@ -215,7 +217,7 @@ public class FastList<T>
     @Override
     public void clear()
     {
-        Arrays.fill(this.items, null);
+        Arrays.fill(this.items, 0, size, null);
         this.size = 0;
     }
 
@@ -307,28 +309,22 @@ public class FastList<T>
 
     private void addAllFastList(FastList<T> source)
     {
-        int sourceSize = source.size();
-        int newSize = this.size + sourceSize;
-        this.ensureCapacity(newSize);
-        System.arraycopy(source.items, 0, this.items, this.size, sourceSize);
+        int newSize = this.ensureCapacityForAddAll(source);
+        System.arraycopy(source.items, 0, this.items, this.size, source.size());
         this.size = newSize;
     }
 
     private void addAllArrayList(ArrayList<T> source)
     {
-        int sourceSize = source.size();
-        int newSize = this.size + sourceSize;
-        this.ensureCapacity(newSize);
-        ArrayListIterate.toArray(source, this.items, this.size, sourceSize);
+        int newSize = this.ensureCapacityForAddAll(source);
+        ArrayListIterate.toArray(source, this.items, this.size, source.size());
         this.size = newSize;
     }
 
     private void addAllRandomAccessList(List<T> source)
     {
-        int sourceSize = source.size();
-        int newSize = this.size + sourceSize;
-        this.ensureCapacity(newSize);
-        RandomAccessListIterate.toArray(source, this.items, this.size, sourceSize);
+        int newSize = this.ensureCapacityForAddAll(source);
+        RandomAccessListIterate.toArray(source, this.items, this.size, source.size());
         this.size = newSize;
     }
 
@@ -403,6 +399,15 @@ public class FastList<T>
         return InternalArrayIterate.lastIndexOf(this.items, this.size, object);
     }
 
+    /**
+     * @since 8.1
+     */
+    @Override
+    public Spliterator<T> spliterator()
+    {
+        return Spliterators.spliterator(this.items, 0, this.size, Spliterator.ORDERED);
+    }
+
     public void trimToSize()
     {
         if (this.size < this.items.length)
@@ -423,6 +428,26 @@ public class FastList<T>
             return true;
         }
         return false;
+    }
+
+    private void ensureCapacityForAdd()
+    {
+        if (this.items == DEFAULT_SIZED_EMPTY_ARRAY)
+        {
+            this.items = (T[]) new Object[10];
+        }
+        else
+        {
+            this.transferItemsToNewArrayWithCapacity(this.sizePlusFiftyPercent(this.size));
+        }
+    }
+
+    private int ensureCapacityForAddAll(Collection<T> source)
+    {
+        int sourceSize = source.size();
+        int newSize = this.size + sourceSize;
+        this.ensureCapacity(newSize);
+        return newSize;
     }
 
     public void ensureCapacity(int minCapacity)
@@ -994,18 +1019,6 @@ public class FastList<T>
         }
         this.items[this.size++] = newItem;
         return true;
-    }
-
-    private void ensureCapacityForAdd()
-    {
-        if (this.items == DEFAULT_SIZED_EMPTY_ARRAY)
-        {
-            this.items = (T[]) new Object[10];
-        }
-        else
-        {
-            this.transferItemsToNewArrayWithCapacity(this.sizePlusFiftyPercent(this.size));
-        }
     }
 
     @Override

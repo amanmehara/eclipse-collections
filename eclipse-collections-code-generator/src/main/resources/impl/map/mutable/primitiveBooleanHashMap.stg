@@ -186,16 +186,19 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return n > 1 ? Integer.highestOneBit(n - 1) \<\< 1 : 1;
     }
 
+    @Override
     public Mutable<name>BooleanMap asUnmodifiable()
     {
         return new Unmodifiable<name>BooleanMap(this);
     }
 
+    @Override
     public Mutable<name>BooleanMap asSynchronized()
     {
         return new Synchronized<name>BooleanMap(this);
     }
 
+    @Override
     public Immutable<name>BooleanMap toImmutable()
     {
         return <name>BooleanMaps.immutable.withAll(this);
@@ -221,6 +224,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return new <name>BooleanHashMap(4).withKeysValues(key1, value1, key2, value2, key3, value3, key4, value4);
     }
 
+    @Override
     public <name>BooleanHashMap withKeyValue(<type> key1, boolean value1)
     {
         this.put(key1, value1);
@@ -251,21 +255,17 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return this;
     }
 
+    @Override
     public <name>BooleanHashMap withoutKey(<type> key)
     {
         this.removeKey(key);
         return this;
     }
 
+    @Override
     public <name>BooleanHashMap withoutAllKeys(<name>Iterable keys)
     {
-        keys.forEach(new <name>Procedure()
-        {
-            public void value(<type> key)
-            {
-                <name>BooleanHashMap.this.removeKey(key);
-            }
-        });
+        keys.forEach(this::removeKey);
         return this;
     }
 
@@ -348,6 +348,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return spread & (this.keys.length - 1);
     }
 
+    @Override
     public void clear()
     {
         this.sentinelValues = null;
@@ -357,6 +358,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         this.values.clear();
     }
 
+    @Override
     public void put(<type> key, boolean value)
     {
         if (isEmptyKey(key))
@@ -393,17 +395,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         this.addKeyValueAtIndex(key, value, index);
     }
 
+    @Override
     public void putAll(<name>BooleanMap map)
     {
-        map.forEachKeyValue(new <name>BooleanProcedure()
-        {
-            public void value(<type> key, boolean value)
-            {
-                <name>BooleanHashMap.this.put(key, value);
-            }
-        });
+        map.forEachKeyValue(this::put);
     }
 
+    @Override
     public boolean containsKey(<type> key)
     {
         if (isEmptyKey(key))
@@ -417,6 +415,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return <(equals.(type))("this.keys[this.probe(key)]", "key")>;
     }
 
+    @Override
     public boolean containsValue(boolean value)
     {
         if (this.getSentinelValues() != null && this.getSentinelValues().containsValue(value))
@@ -433,11 +432,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return false;
     }
 
+    @Override
     public boolean get(<type> key)
     {
         return this.getIfAbsent(key, this.getEmptyValue());
     }
 
+    @Override
     public boolean getIfAbsent(<type> key, boolean ifAbsent)
     {
         if (isEmptyKey(key))
@@ -464,6 +465,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return ifAbsent;
     }
 
+    @Override
     public boolean getOrThrow(<type> key)
     {
         if (isEmptyKey(key))
@@ -490,6 +492,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         throw new IllegalStateException("Key " + key + " not present.");
     }
 
+    @Override
     public boolean getIfAbsentPut(<type> key, boolean value)
     {
         if (isEmptyKey(key))
@@ -531,6 +534,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return value;
     }
 
+    @Override
     public boolean getIfAbsentPut(<type> key, BooleanFunction0 function)
     {
         if (isEmptyKey(key))
@@ -577,6 +581,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return value;
     }
 
+    @Override
     public \<P> boolean getIfAbsentPutWith(<type> key, BooleanFunction\<? super P> function, P parameter)
     {
         if (isEmptyKey(key))
@@ -623,6 +628,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return value;
     }
 
+    @Override
     public boolean getIfAbsentPutWithKey(<type> key, <name>ToBooleanFunction function)
     {
         if (isEmptyKey(key))
@@ -669,6 +675,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return value;
     }
 
+    @Override
     public boolean updateValue(<type> key, boolean initialValueIfAbsent, BooleanToBooleanFunction function)
     {
         if (isEmptyKey(key))
@@ -731,6 +738,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         }
     }
 
+    @Override
     public void removeKey(<type> key)
     {
         if (isEmptyKey(key))
@@ -765,11 +773,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         }
     }
 
+    @Override
     public void remove(<type> key)
     {
         this.removeKey(key);
     }
 
+    @Override
     public boolean removeKeyIfAbsent(<type> key, boolean value)
     {
         if (isEmptyKey(key))
@@ -930,11 +940,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return appendable.toString();
     }
 
+    @Override
     public MutableBooleanIterator booleanIterator()
     {
         return new InternalBooleanIterator();
     }
 
+    @Override
     public void forEachKey(<name>Procedure procedure)
     {
         if (this.sentinelValues != null)
@@ -957,6 +969,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         }
     }
 
+    @Override
     public void forEachKeyValue(<name>BooleanProcedure procedure)
     {
         if (this.sentinelValues != null)
@@ -979,6 +992,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         }
     }
 
+    @Override
     public <name>BooleanHashMap select(<name>BooleanPredicate predicate)
     {
         <name>BooleanHashMap result = new <name>BooleanHashMap();
@@ -1005,6 +1019,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return result;
     }
 
+    @Override
     public <name>BooleanHashMap reject(<name>BooleanPredicate predicate)
     {
         <name>BooleanHashMap result = new <name>BooleanHashMap();
@@ -1030,16 +1045,19 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         return result;
     }
 
+    @Override
     public Lazy<name>Iterable keysView()
     {
         return new KeysView();
     }
 
+    @Override
     public RichIterable\<<name>BooleanPair> keyValuesView()
     {
         return new KeyValuesView();
     }
 
+    @Override
     public void writeExternal(ObjectOutput out) throws IOException
     {
         out.writeInt(this.size());
@@ -1070,6 +1088,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         }
     }
 
+    @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
     {
         int size = in.readInt();
@@ -1104,11 +1123,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         private boolean handledOne;
         private boolean canRemove;
 
+        @Override
         public boolean hasNext()
         {
             return this.count \< <name>BooleanHashMap.this.size();
         }
 
+        @Override
         public boolean next()
         {
             if (!this.hasNext())
@@ -1148,6 +1169,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return result;
         }
 
+        @Override
         public void remove()
         {
             if (!this.canRemove)
@@ -1162,26 +1184,31 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
 
     private class KeysView extends AbstractLazy<name>Iterable
     {
+        @Override
         public boolean isEmpty()
         {
             return <name>BooleanHashMap.this.isEmpty();
         }
 
+        @Override
         public boolean notEmpty()
         {
             return <name>BooleanHashMap.this.notEmpty();
         }
 
+        @Override
         public int size()
         {
             return <name>BooleanHashMap.this.size();
         }
 
+        @Override
         public boolean contains(<type> key)
         {
             return <name>BooleanHashMap.this.containsKey(key);
         }
 
+        @Override
         public boolean containsAll(<type>... keys)
         {
             for (<type> key : keys)
@@ -1194,17 +1221,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return true;
         }
 
+        @Override
         public boolean containsAll(<name>Iterable source)
         {
-            return source.allSatisfy(new <name>Predicate()
-            {
-                public boolean accept(<type> key)
-                {
-                    return <name>BooleanHashMap.this.containsKey(key);
-                }
-            });
+            return source.allSatisfy(<name>BooleanHashMap.this::containsKey);
         }
 
+        @Override
         public <name>Iterator <type>Iterator()
         {
             return new Unmodifiable<name>Iterator(new KeySetIterator());
@@ -1213,11 +1236,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         /**
          * @since 7.0.
          */
+        @Override
         public void each(<name>Procedure procedure)
         {
             <name>BooleanHashMap.this.forEachKey(procedure);
         }
 
+        @Override
         public void appendString(Appendable appendable, String start, String separator, String end)
         {
             try
@@ -1261,6 +1286,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             }
         }
 
+        @Override
         public int count(<name>Predicate predicate)
         {
             int count = 0;
@@ -1285,6 +1311,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return count;
         }
 
+        @Override
         public boolean anySatisfy(<name>Predicate predicate)
         {
             if (<name>BooleanHashMap.this.sentinelValues != null)
@@ -1308,6 +1335,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return false;
         }
 
+        @Override
         public boolean allSatisfy(<name>Predicate predicate)
         {
             if (<name>BooleanHashMap.this.sentinelValues != null)
@@ -1331,11 +1359,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return true;
         }
 
+        @Override
         public boolean noneSatisfy(<name>Predicate predicate)
         {
             return !this.anySatisfy(predicate);
         }
 
+        @Override
         public <type> detectIfNone(<name>Predicate predicate, <type> value)
         {
             if (<name>BooleanHashMap.this.sentinelValues != null)
@@ -1359,6 +1389,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return value;
         }
 
+        @Override
         public <wideType.(type)> sum()
         {
             <wideType.(type)> result = <wideZero.(type)>;
@@ -1385,6 +1416,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return result;
         }
 
+        @Override
         public <type> max()
         {
             if (this.isEmpty())
@@ -1404,6 +1436,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return max;
         }
 
+        @Override
         public <type> min()
         {
             if (this.isEmpty())
@@ -1423,6 +1456,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return min;
         }
 
+        @Override
         public <type>[] toSortedArray()
         {
             <type>[] array = this.toArray();
@@ -1430,6 +1464,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return array;
         }
 
+        @Override
         public <type>[] toArray()
         {
             int size = <name>BooleanHashMap.this.size();
@@ -1438,6 +1473,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             {
                 private int index;
 
+                @Override
                 public void value(<type> each)
                 {
                     result[this.index] = each;
@@ -1447,6 +1483,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return result;
         }
 
+        @Override
         public \<T> T injectInto(T injectedValue, Object<name>ToObjectFunction\<? super T, ? extends T> function)
         {
             T result = injectedValue;
@@ -1471,22 +1508,26 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return result;
         }
 
+        @Override
         public Mutable<name>List toList()
         {
             return <name>ArrayList.newList(this);
         }
 
+        @Override
         public Mutable<name>Set toSet()
         {
             return <name>HashSet.newSet(this);
         }
 
+        @Override
         public Mutable<name>Bag toBag()
         {
             return <name>HashBag.newBag(this);
         }
     }
 
+    @Override
     public Mutable<name>Set keySet()
     {
         return new KeySet();
@@ -1518,22 +1559,18 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return <name>BooleanHashMap.this.sentinelValues;
         }
 
+        @Override
         public Mutable<name>Iterator <type>Iterator()
         {
             return new KeySetIterator();
         }
 
+        @Override
         public boolean retainAll(<name>Iterable source)
         {
             int oldSize = <name>BooleanHashMap.this.size();
             final <name>Set sourceSet = source instanceof <name>Set ? (<name>Set) source : source.toSet();
-            <name>BooleanHashMap retained = <name>BooleanHashMap.this.select(new <name>BooleanPredicate()
-            {
-                public boolean accept(<type> key, boolean value)
-                {
-                    return sourceSet.contains(key);
-                }
-            });
+            <name>BooleanHashMap retained = <name>BooleanHashMap.this.select((<type> key, boolean value) -> sourceSet.contains(key));
             if (retained.size() != oldSize)
             {
                 <name>BooleanHashMap.this.keys = retained.keys;
@@ -1546,17 +1583,20 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return false;
         }
 
+        @Override
         public boolean retainAll(<type>... source)
         {
             return this.retainAll(<name>HashSet.newSetWith(source));
         }
 
+@Override
         public <name>Set freeze()
         {
             throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".freeze() not implemented yet");
         }
     }
 
+    @Override
     public MutableBooleanCollection values()
     {
         return new ValuesCollection();
@@ -1564,6 +1604,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
 
     private class ValuesCollection extends AbstractBooleanValuesCollection
     {
+        @Override
         public void appendString(Appendable appendable, String start, String separator, String end)
         {
             try
@@ -1609,11 +1650,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             }
         }
 
+        @Override
         public MutableBooleanIterator booleanIterator()
         {
             return <name>BooleanHashMap.this.booleanIterator();
         }
 
+        @Override
         public boolean remove(boolean item)
         {
             int oldSize = <name>BooleanHashMap.this.size();
@@ -1639,17 +1682,12 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return oldSize != <name>BooleanHashMap.this.size();
         }
 
+        @Override
         public boolean retainAll(BooleanIterable source)
         {
             int oldSize = <name>BooleanHashMap.this.size();
             final BooleanSet sourceSet = source instanceof BooleanSet ? (BooleanSet) source : source.toSet();
-            <name>BooleanHashMap retained = <name>BooleanHashMap.this.select(new <name>BooleanPredicate()
-            {
-                public boolean accept(<type> key, boolean value)
-                {
-                    return sourceSet.contains(value);
-                }
-            });
+            <name>BooleanHashMap retained = <name>BooleanHashMap.this.select((<type> key, boolean value) -> sourceSet.contains(value));
             if (retained.size() != oldSize)
             {
                 <name>BooleanHashMap.this.keys = retained.keys;
@@ -1672,11 +1710,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
         private boolean handledOne;
         private boolean removed = true;
 
+        @Override
         public boolean hasNext()
         {
             return this.count \< <name>BooleanHashMap.this.size();
         }
 
+        @Override
         public <type> next()
         {
             if (!this.hasNext())
@@ -1715,6 +1755,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             return this.lastKey;
         }
 
+        @Override
         public void remove()
         {
             if (this.removed)
@@ -1729,6 +1770,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
 
     private class KeyValuesView extends AbstractLazyIterable\<<name>BooleanPair>
     {
+        @Override
         public void each(Procedure\<? super <name>BooleanPair> procedure)
         {
             if (<name>BooleanHashMap.this.sentinelValues != null)
@@ -1751,6 +1793,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             }
         }
 
+        @Override
         public void forEachWithIndex(ObjectIntProcedure\<? super <name>BooleanPair> objectIntProcedure)
         {
             int index = 0;
@@ -1777,6 +1820,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             }
         }
 
+        @Override
         public \<P> void forEachWith(Procedure2\<? super <name>BooleanPair, ? super P> procedure, P parameter)
         {
             if (<name>BooleanHashMap.this.sentinelValues != null)
@@ -1799,6 +1843,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             }
         }
 
+        @Override
         public Iterator\<<name>BooleanPair> iterator()
         {
             return new InternalKeyValuesIterator();
@@ -1811,6 +1856,7 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
             private boolean handledZero;
             private boolean handledOne;
 
+            @Override
             public <name>BooleanPair next()
             {
                 if (!this.hasNext())
@@ -1846,11 +1892,13 @@ public class <name>BooleanHashMap extends AbstractMutableBooleanValuesMap implem
                 return result;
             }
 
+            @Override
             public void remove()
             {
                 throw new UnsupportedOperationException("Cannot call remove() on " + this.getClass().getSimpleName());
             }
 
+            @Override
             public boolean hasNext()
             {
                 return this.count != <name>BooleanHashMap.this.size();

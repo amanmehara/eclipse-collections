@@ -26,36 +26,43 @@ import org.eclipse.collections.api.map.primitive.Object<name>Map;
  */
 public class ImmutableObject<name>MapFactoryImpl implements ImmutableObject<name>MapFactory
 {
+    @Override
     public \<K> ImmutableObject<name>Map\<K> empty()
     {
         return (ImmutableObject<name>Map\<K>) ImmutableObject<name>EmptyMap.INSTANCE;
     }
 
+    @Override
     public \<K> ImmutableObject<name>Map\<K> of()
     {
         return this.empty();
     }
 
+    @Override
     public \<K> ImmutableObject<name>Map\<K> with()
     {
         return this.empty();
     }
 
+    @Override
     public \<K> ImmutableObject<name>Map\<K> of(K key, <type> value)
     {
         return this.with(key, value);
     }
 
+    @Override
     public \<K> ImmutableObject<name>Map\<K> with(K key, <type> value)
     {
-        return new ImmutableObject<name>SingletonMap\<K>(key, value);
+        return new ImmutableObject<name>SingletonMap\<>(key, value);
     }
 
+    @Override
     public \<K> ImmutableObject<name>Map\<K> ofAll(Object<name>Map\<? extends K> map)
     {
         return this.withAll(map);
     }
 
+    @Override
     public \<K> ImmutableObject<name>Map\<K> withAll(Object<name>Map\<? extends K> map)
     {
         if (map instanceof ImmutableObject<name>Map)
@@ -70,16 +77,10 @@ public class ImmutableObject<name>MapFactoryImpl implements ImmutableObject<name
         {
             //TODO use keysView() when available.
             final Object[] array = new Object[1];
-            map.forEachKey(new Procedure\<K>()
-            {
-                public void value(K each)
-                {
-                    array[0] = each;
-                }
-            });
-            return new ImmutableObject<name>SingletonMap\<K>((K) array[0], map.get(array[0]));
+            map.forEachKey((K each) -> array[0] = each);
+            return new ImmutableObject<name>SingletonMap\<>((K) array[0], map.get(array[0]));
         }
-        return new ImmutableObject<name>HashMap\<K>(map);
+        return new ImmutableObject<name>HashMap\<>(map);
     }
 }
 

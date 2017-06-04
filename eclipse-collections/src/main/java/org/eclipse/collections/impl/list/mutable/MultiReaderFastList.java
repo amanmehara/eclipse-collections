@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Optional;
 import java.util.Random;
 import java.util.RandomAccess;
 import java.util.concurrent.ExecutorService;
@@ -793,6 +794,34 @@ public final class MultiReaderFastList<T>
     }
 
     @Override
+    public Optional<T> getFirstOptional()
+    {
+        this.acquireReadLock();
+        try
+        {
+            return this.getDelegate().getFirstOptional();
+        }
+        finally
+        {
+            this.unlockReadLock();
+        }
+    }
+
+    @Override
+    public Optional<T> getLastOptional()
+    {
+        this.acquireReadLock();
+        try
+        {
+            return this.getDelegate().getLastOptional();
+        }
+        finally
+        {
+            this.unlockReadLock();
+        }
+    }
+
+    @Override
     public int indexOf(Object o)
     {
         this.acquireReadLock();
@@ -853,9 +882,9 @@ public final class MultiReaderFastList<T>
      * MultiReaderFastList, then you must do the following:
      * <p>
      * <pre>
-     * multiReaderList.withReadLockAndDelegate(new Procedure<MutableList<Person>>()
+     * multiReaderList.withReadLockAndDelegate(new Procedure&lt;MutableList&lt;Person&gt;&gt;()
      * {
-     *     public void value(MutableList<Person> people)
+     *     public void value(MutableList&lt;Person&gt; people)
      *     {
      *         Iterator it = people.listIterator();
      *         ....
@@ -876,9 +905,9 @@ public final class MultiReaderFastList<T>
      * MultiReaderFastList, then you must do the following:
      * <p>
      * <pre>
-     * multiReaderList.withReadLockAndDelegate(new Procedure<MutableList<Person>>()
+     * multiReaderList.withReadLockAndDelegate(new Procedure&lt;MutableList&lt;Person&gt;&gt;()
      * {
-     *     public void value(MutableList<Person> people)
+     *     public void value(MutableList&lt;Person&gt; people)
      *     {
      *         Iterator it = people.listIterator(0);
      *         ....

@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -1373,7 +1374,7 @@ public interface RichIterableTestCase extends IterableTestCase
     {
         RichIterable<Integer> iterable = this.newWith(1, null, 3);
 
-        assertThrows(NullPointerException.class, () -> iterable.detectOptional(i -> i == null));
+        assertThrows(NullPointerException.class, () -> iterable.detectOptional(Objects::isNull));
         assertThrows(NullPointerException.class, () -> iterable.detectWithOptional((i, object) -> i == object, null));
     }
 
@@ -1416,6 +1417,48 @@ public interface RichIterableTestCase extends IterableTestCase
     }
 
     @Test
+    default void RichIterable_minOptional_maxOptional()
+    {
+        assertEquals(Optional.of(Integer.valueOf(-1)), this.newWith(-1, 0, 1).minOptional());
+        assertEquals(Optional.of(Integer.valueOf(-1)), this.newWith(1, 0, -1).minOptional());
+        assertSame(Optional.empty(), this.newWith().minOptional());
+        assertThrows(NullPointerException.class, () -> this.newWith(new Object[]{null}).minOptional());
+
+        assertEquals(Optional.of(Integer.valueOf(1)), this.newWith(-1, 0, 1).maxOptional());
+        assertEquals(Optional.of(Integer.valueOf(1)), this.newWith(1, 0, -1).maxOptional());
+        assertSame(Optional.empty(), this.newWith().maxOptional());
+        assertThrows(NullPointerException.class, () -> this.newWith(new Object[]{null}).maxOptional());
+
+        assertEquals(Optional.of(Integer.valueOf(1)), this.newWith(-1, 0, 1).minOptional(Comparators.reverseNaturalOrder()));
+        assertEquals(Optional.of(Integer.valueOf(1)), this.newWith(1, 0, -1).minOptional(Comparators.reverseNaturalOrder()));
+        assertSame(Optional.empty(), this.newWith().minOptional(Comparators.reverseNaturalOrder()));
+        assertThrows(NullPointerException.class, () -> this.newWith(new Object[]{null}).minOptional(Comparators.reverseNaturalOrder()));
+
+        assertEquals(Optional.of(Integer.valueOf(-1)), this.newWith(-1, 0, 1).maxOptional(Comparators.reverseNaturalOrder()));
+        assertEquals(Optional.of(Integer.valueOf(-1)), this.newWith(1, 0, -1).maxOptional(Comparators.reverseNaturalOrder()));
+        assertSame(Optional.empty(), this.newWith().maxOptional(Comparators.reverseNaturalOrder()));
+        assertThrows(NullPointerException.class, () -> this.newWith(new Object[]{null}).maxOptional(Comparators.reverseNaturalOrder()));
+    }
+
+    @Test
+    default void RichIterable_minOptional_maxOptional_non_comparable()
+    {
+        Object sentinel = new Object();
+
+        assertEquals(Optional.of(sentinel), this.newWith(sentinel).minOptional());
+        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).minOptional());
+
+        assertEquals(Optional.of(sentinel), this.newWith(sentinel).maxOptional());
+        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).maxOptional());
+
+        assertEquals(Optional.of(sentinel), this.newWith(sentinel).minOptional(Comparators.reverseNaturalOrder()));
+        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).minOptional(Comparators.reverseNaturalOrder()));
+
+        assertEquals(Optional.of(sentinel), this.newWith(sentinel).maxOptional(Comparators.reverseNaturalOrder()));
+        assertThrows(ClassCastException.class, () -> this.newWith(new Object(), new Object()).maxOptional(Comparators.reverseNaturalOrder()));
+    }
+
+    @Test
     default void RichIterable_minBy_maxBy()
     {
         assertEquals("da", this.newWith("ed", "da", "ca", "bc", "ab").minBy(string -> string.charAt(string.length() - 1)));
@@ -1423,6 +1466,18 @@ public interface RichIterableTestCase extends IterableTestCase
 
         assertEquals("dz", this.newWith("ew", "dz", "cz", "bx", "ay").maxBy(string -> string.charAt(string.length() - 1)));
         assertThrows(NoSuchElementException.class, () -> this.<String>newWith().maxBy(string -> string.charAt(string.length() - 1)));
+    }
+
+    @Test
+    default void RichIterable_minByOptional_maxByOptional()
+    {
+        assertEquals(Optional.of("da"), this.newWith("ed", "da", "ca", "bc", "ab").minByOptional(string -> string.charAt(string.length() - 1)));
+        assertSame(Optional.empty(), this.<String>newWith().minByOptional(string -> string.charAt(string.length() - 1)));
+        assertThrows(NullPointerException.class, () -> this.newWith(new Object[]{null}).minByOptional(object -> object == null));
+
+        assertEquals(Optional.of("dz"), this.newWith("ew", "dz", "cz", "bx", "ay").maxByOptional(string -> string.charAt(string.length() - 1)));
+        assertSame(Optional.empty(), this.<String>newWith().maxByOptional(string -> string.charAt(string.length() - 1)));
+        assertThrows(NullPointerException.class, () -> this.newWith(new Object[]{null}).maxByOptional(object -> object == null));
     }
 
     @Test

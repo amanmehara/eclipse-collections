@@ -35,7 +35,6 @@ import org.eclipse.collections.api.PrimitiveIterable;
 import org.eclipse.collections.api.bag.Bag;
 import org.eclipse.collections.api.bag.sorted.SortedBag;
 import org.eclipse.collections.api.block.predicate.Predicate;
-import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -1670,7 +1669,7 @@ public final class Verify extends Assert
     {
         try
         {
-            Assert.assertTrue(message, Predicates.anySatisfy(predicate).accept(iterable));
+            Assert.assertTrue(message, Predicates.<T>anySatisfy(predicate).accept(iterable));
         }
         catch (AssertionError e)
         {
@@ -2322,13 +2321,10 @@ public final class Verify extends Assert
             Assert.assertEquals(bagName + " size", expectedBag.size(), actualBag.size());
             Assert.assertEquals(bagName + " sizeDistinct", expectedBag.sizeDistinct(), actualBag.sizeDistinct());
 
-            expectedBag.forEachWithOccurrences(new ObjectIntProcedure<Object>()
+            expectedBag.forEachWithOccurrences((expectedKey, expectedValue) ->
             {
-                public void value(Object expectedKey, int expectedValue)
-                {
-                    int actualValue = actualBag.occurrencesOf(expectedKey);
-                    Assert.assertEquals("Occurrences of " + expectedKey, expectedValue, actualValue);
-                }
+                int actualValue = actualBag.occurrencesOf(expectedKey);
+                Assert.assertEquals("Occurrences of " + expectedKey, expectedValue, actualValue);
             });
         }
         catch (AssertionError e)
@@ -3745,7 +3741,8 @@ public final class Verify extends Assert
     {
         try
         {
-            Verify.assertThrows(NotSerializableException.class, () -> {
+            Verify.assertThrows(NotSerializableException.class, () ->
+            {
                 new ObjectOutputStream(new ByteArrayOutputStream()).writeObject(actualObject);
                 return null;
             });
@@ -3849,6 +3846,10 @@ public final class Verify extends Assert
         }
     }
 
+    /**
+     * @deprecated since 8.2.0 as will not work with Java 9
+     */
+    @Deprecated
     public static void assertShallowClone(Cloneable object)
     {
         try
@@ -3861,6 +3862,10 @@ public final class Verify extends Assert
         }
     }
 
+    /**
+     * @deprecated since 8.2.0 as will not work with Java 9
+     */
+    @Deprecated
     public static void assertShallowClone(String itemName, Cloneable object)
     {
         try

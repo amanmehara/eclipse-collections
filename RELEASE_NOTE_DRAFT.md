@@ -1,4 +1,4 @@
-8.1.0 (July 2016)
+8.1.0 (March 2017)
 ====================
 
 This is the 8.1.0 minor release.   
@@ -6,17 +6,42 @@ This is the 8.1.0 minor release.
 New Functionality
 -----------------
 
-* Placeholder.
+* Implemented primitive case procedures.
+* Implemented primitive case functions.
+* Implemented select and reject with targets on primitive iterables.
+* Implemented collect and flatCollect with target collections on primitiveIterable.stg.
+* Added collect<Primitives> with target collections as default methods in primitiveIterable.stg.
+* Made SummaryStatistics Serializable.
+* Implemented summingBigDecimal, sumByBigDecimal, summingBigInteger, sumByBigInteger on Collectors2. 
+* Implemented BigDecimalSummaryStatistics and BigIntegerSummaryStatistics.
+* Implemented SummaryStatistics and Collectors2.summarizing.
+* Integrated JaCoCo for test coverage.
+* Implemented flatCollect on Collectors2.
+* Modified PersonAndPetKataTest.getAgeStatisticsOfPets to use summaryStatistics.
+* Added Abstract primitive Stacks.
+* Add public constructors to Unmodifiable and Synchronized collections.
+* Implement throwing method on functional interface factories which takes a user specified runtime exception function.
+* Implement spliterator on FastList and ArrayAdapter.
 
 Optimizations
 -------------
 
-* Placeholder.
+* Changed collect and collectWith with target collections on InternalArrayIterate to use ensureCapacity for FastLists and ArrayLists.
+* Replaced anonymous inner classes with lambdas and method references.
 
 Bug fixes
 ---------
 
-* Placeholder.
+* Removed JMH tests and generator codes from Javadoc output.
+* Updated links to point to the Eclipse Collections Kata instead of the GS Collections Kata.
+* Fixed addAll() method in CompositeFastList to return false on isEmpty().
+* Fixed exporting all necessary packages in MANIFEST.MF.
+* Added sign jar step as part of deploy build.
+
+Documentation
+-------------
+* Added the Eclipse Collections reference guide.
+* Enriched README.md.
 
 Acquiring Eclipse Collections
 -----------------------------

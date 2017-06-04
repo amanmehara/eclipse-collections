@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import org.eclipse.collections.api.<name>Iterable;
@@ -31,6 +32,7 @@ import org.eclipse.collections.api.block.function.primitive.<name>ToObjectFuncti
 import org.eclipse.collections.api.block.predicate.primitive.<name>Predicate;
 import org.eclipse.collections.api.block.procedure.primitive.<name>IntProcedure;
 import org.eclipse.collections.api.block.procedure.primitive.<name>Procedure;
+import org.eclipse.collections.api.collection.primitive.Mutable<name>Collection;
 import org.eclipse.collections.api.iterator.Mutable<name>Iterator;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.<name>List;
@@ -102,17 +104,20 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return newList;
     }
 
+    @Override
     public int size()
     {
         return this.size;
     }
 
+    @Override
     public void clear()
     {
-        Arrays.fill(this.items, <(zero.(type))>);
+        Arrays.fill(this.items, 0, size, <(zero.(type))>);
         this.size = 0;
     }
 
+    @Override
     public boolean contains(<type> value)
     {
         for (int i = 0; i \< this.size; i++)
@@ -125,6 +130,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return false;
     }
 
+    @Override
     public <type> get(int index)
     {
         if (index \< this.size)
@@ -139,12 +145,14 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return new IndexOutOfBoundsException("Index: " + index + " Size: " + this.size);
     }
 
+    @Override
     public <type> getFirst()
     {
         this.checkEmpty();
         return this.items[0];
     }
 
+    @Override
     public <type> getLast()
     {
         this.checkEmpty();
@@ -159,6 +167,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         }
     }
 
+    @Override
     public int indexOf(<type> value)
     {
         for (int i = 0; i \< this.size; i++)
@@ -171,6 +180,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return -1;
     }
 
+    @Override
     public int lastIndexOf(<type> value)
     {
         for (int i = this.size - 1; i >= 0; i--)
@@ -231,6 +241,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         }
     }
 
+    @Override
     public boolean add(<type> newItem)
     {
         if (this.items.length == this.size)
@@ -242,6 +253,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return true;
     }
 
+    @Override
     public boolean addAll(<type>... source)
     {
         if (source.length \< 1)
@@ -252,6 +264,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return true;
     }
 
+    @Override
     public boolean addAll(<name>Iterable source)
     {
         if (source instanceof <name>ArrayList)
@@ -280,6 +293,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         throw this.newIndexOutOfBoundsException(index);
     }
 
+    @Override
     public void addAtIndex(int index, <type> element)
     {
         if (index > -1 && index \< this.size)
@@ -317,6 +331,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         this.items[index] = element;
     }
 
+    @Override
     public boolean addAllAtIndex(int index, <type>... source)
     {
         if (index > this.size || index \< 0)
@@ -336,6 +351,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return true;
     }
 
+    @Override
     public boolean addAllAtIndex(int index, <name>Iterable source)
     {
         return this.addAllAtIndex(index, source.toArray());
@@ -350,6 +366,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         }
     }
 
+    @Override
     public boolean remove(<type> value)
     {
         int index = this.indexOf(value);
@@ -361,6 +378,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return false;
     }
 
+    @Override
     public boolean removeAll(<name>Iterable source)
     {
         boolean modified = false;
@@ -376,6 +394,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return modified;
     }
 
+    @Override
     public boolean removeAll(<type>... source)
     {
         <name>HashSet set = <name>HashSet.newSetWith(source);
@@ -395,27 +414,24 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return oldSize != this.size;
     }
 
+    @Override
     public boolean retainAll(<name>Iterable source)
     {
         int oldSize = this.size();
         final <name>Set sourceSet = source instanceof <name>Set ? (<name>Set) source : source.toSet();
-        <name>ArrayList retained = this.select(new <name>Predicate()
-        {
-            public boolean accept(<type> value)
-            {
-                return sourceSet.contains(value);
-            }
-        });
+        <name>ArrayList retained = this.select(sourceSet::contains);
         this.size = retained.size;
         this.items = retained.items;
         return oldSize != this.size();
     }
 
+    @Override
     public boolean retainAll(<type>... source)
     {
         return this.retainAll(<name>HashSet.newSetWith(source));
     }
 
+    @Override
     public <type> removeAtIndex(int index)
     {
         <type> previous = this.get(index);
@@ -429,6 +445,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return previous;
     }
 
+    @Override
     public <type> set(int index, <type> element)
     {
         <type> previous = this.get(index);
@@ -436,24 +453,28 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return previous;
     }
 
+    @Override
     public <name>ArrayList with(<type> element)
     {
         this.add(element);
         return this;
     }
 
+    @Override
     public <name>ArrayList without(<type> element)
     {
         this.remove(element);
         return this;
     }
 
+    @Override
     public <name>ArrayList withAll(<name>Iterable elements)
     {
         this.addAll(elements.toArray());
         return this;
     }
 
+    @Override
     public <name>ArrayList withoutAll(<name>Iterable elements)
     {
         this.removeAll(elements);
@@ -491,11 +512,13 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return this;
     }
 
+    @Override
     public Mutable<name>Iterator <type>Iterator()
     {
         return new Internal<name>Iterator();
     }
 
+    @Override
     public void forEach(<name>Procedure procedure)
     {
         this.each(procedure);
@@ -504,6 +527,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
     /**
      * @since 7.0.
      */
+    @Override
     public void each(<name>Procedure procedure)
     {
         for (int i = 0; i \< this.size; i++)
@@ -512,6 +536,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         }
     }
 
+    @Override
     public void forEachWithIndex(<name>IntProcedure procedure)
     {
         for (int i = 0; i \< this.size; i++)
@@ -520,6 +545,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         }
     }
 
+    @Override
     public \<T> T injectInto(T injectedValue, Object<name>ToObjectFunction\<? super T, ? extends T> function)
     {
         T result = injectedValue;
@@ -530,6 +556,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return result;
     }
 
+    @Override
     public \<T> T injectIntoWithIndex(T injectedValue, Object<name>IntToObjectFunction\<? super T, ? extends T> function)
     {
         T result = injectedValue;
@@ -540,6 +567,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return result;
     }
 
+    @Override
     public int count(<name>Predicate predicate)
     {
         int count = 0;
@@ -553,6 +581,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return count;
     }
 
+    @Override
     public boolean anySatisfy(<name>Predicate predicate)
     {
         for (int i = 0; i \< this.size; i++)
@@ -565,6 +594,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return false;
     }
 
+    @Override
     public boolean allSatisfy(<name>Predicate predicate)
     {
         for (int i = 0; i \< this.size; i++)
@@ -577,46 +607,59 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return true;
     }
 
+    @Override
     public boolean noneSatisfy(<name>Predicate predicate)
     {
-        for (int i = 0; i \< this.size; i++)
-        {
-            if (predicate.accept(this.items[i]))
-            {
-                return false;
-            }
-        }
-        return true;
+        return !this.anySatisfy(predicate);
     }
 
+    @Override
     public <name>ArrayList select(<name>Predicate predicate)
     {
-        <name>ArrayList result = new <name>ArrayList();
+        return this.select(predicate, new <name>ArrayList());
+    }
+
+    /**
+     * @since 8.1.
+     */
+    @Override
+    public \<R extends Mutable<name>Collection> R select(<name>Predicate predicate, R target)
+    {
         for (int i = 0; i \< this.size; i++)
         {
             <type> item = this.items[i];
             if (predicate.accept(item))
             {
-                result.add(item);
+                target.add(item);
             }
         }
-        return result;
+        return target;
     }
 
+    @Override
     public <name>ArrayList reject(<name>Predicate predicate)
     {
-        <name>ArrayList result = new <name>ArrayList();
+        return this.reject(predicate, new <name>ArrayList());
+    }
+
+    /**
+     * @since 8.1.
+     */
+    @Override
+    public \<R extends Mutable<name>Collection> R reject(<name>Predicate predicate, R target)
+    {
         for (int i = 0; i \< this.size; i++)
         {
             <type> item = this.items[i];
             if (!predicate.accept(item))
             {
-                result.add(item);
+                target.add(item);
             }
         }
-        return result;
+        return target;
     }
 
+    @Override
     public <type> detectIfNone(<name>Predicate predicate, <type> ifNone)
     {
         for (int i = 0; i \< this.size; i++)
@@ -630,9 +673,18 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return ifNone;
     }
 
+    @Override
     public \<V> MutableList\<V> collect(<name>ToObjectFunction\<? extends V> function)
     {
-        FastList\<V> target = FastList.newList(this.size);
+        return this.collect(function, FastList.newList(this.size));
+    }
+
+    /**
+     * @since 8.1.
+     */
+    @Override
+    public \<V, R extends Collection\<V>\> R collect(<name>ToObjectFunction\<? extends V> function, R target)
+    {
         for (int i = 0; i \< this.size; i++)
         {
             target.add(function.valueOf(this.items[i]));
@@ -640,6 +692,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return target;
     }
 
+    @Override
     public <type> max()
     {
         if (this.isEmpty())
@@ -658,6 +711,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return max;
     }
 
+    @Override
     public <type> min()
     {
         if (this.isEmpty())
@@ -676,6 +730,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return min;
     }
 
+    @Override
     <if(primitive.floatingPoint)>public <wideType.(type)> sum()
 {
     <wideType.(type)> result = <wideZero.(type)>;
@@ -702,6 +757,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
 
     <endif>
 
+    @Override
     public <wideType.(type)> dotProduct(<name>List list)
     {
         if (this.size != list.size())
@@ -716,6 +772,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return sum;
     }
 
+    @Override
     public <type>[] toArray()
     {
         <type>[] newItems = new <type>[this.size];
@@ -761,6 +818,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return hashCode;
     }
 
+    @Override
     public void appendString(
             Appendable appendable,
             String start,
@@ -787,16 +845,19 @@ public class <name>ArrayList extends Abstract<name>Iterable
         }
     }
 
+    @Override
     public Mutable<name>List asUnmodifiable()
     {
         return new Unmodifiable<name>List(this);
     }
 
+    @Override
     public Mutable<name>List asSynchronized()
     {
         return new Synchronized<name>List(this);
     }
 
+    @Override
     public Immutable<name>List toImmutable()
     {
         if (this.size == 0)
@@ -810,6 +871,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return <name>Lists.immutable.with(this.toArray());
     }
 
+    @Override
     public void writeExternal(ObjectOutput out) throws IOException
     {
         out.writeInt(this.size);
@@ -819,6 +881,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         }
     }
 
+    @Override
     public void readExternal(ObjectInput in) throws IOException
     {
         this.size = in.readInt();
@@ -829,11 +892,13 @@ public class <name>ArrayList extends Abstract<name>Iterable
         }
     }
 
+    @Override
     public Lazy<name>Iterable asReversed()
     {
         return Reverse<name>Iterable.adapt(this);
     }
 
+    @Override
     public <name>ArrayList reverseThis()
     {
         int endIndex = this.size - 1;
@@ -846,22 +911,26 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return this;
     }
 
+    @Override
     public <name>ArrayList sortThis()
     {
         Arrays.sort(this.items, 0, this.size);
         return this;
     }
 
+    @Override
     public <name>ArrayList toReversed()
     {
         return <name>ArrayList.newList(this.asReversed());
     }
 
+    @Override
     public int binarySearch(<type> value)
     {
         return Arrays.binarySearch(this.items, 0, this.size, value);
     }
 
+    @Override
     public Mutable<name>List distinct()
     {
         <name>ArrayList target = new <name>ArrayList();
@@ -878,6 +947,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
         return target;
     }
 
+    @Override
     public Mutable<name>List subList(int fromIndex, int toIndex)
     {
         throw new UnsupportedOperationException("subList not yet implemented!");
@@ -891,11 +961,13 @@ public class <name>ArrayList extends Abstract<name>Iterable
         private int currentIndex;
         private int lastIndex = -1;
 
+        @Override
         public boolean hasNext()
         {
             return this.currentIndex != <name>ArrayList.this.size();
         }
 
+        @Override
         public <type> next()
         {
             if (!this.hasNext())
@@ -907,6 +979,7 @@ public class <name>ArrayList extends Abstract<name>Iterable
             return next;
         }
 
+        @Override
         public void remove()
         {
             if (this.lastIndex == -1)

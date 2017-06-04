@@ -15,7 +15,6 @@ body(type, name) ::= <<
 
 package org.eclipse.collections.api.map.primitive;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.collections.api.Lazy<name>Iterable;
@@ -41,6 +40,7 @@ public interface <name>ObjectMap\<V> extends PrimitiveObjectMap\<V>
 
     boolean containsKey(<type> key);
 
+    @Override
     <name>ObjectMap\<V> tap(Procedure\<? super V> procedure);
 
     void forEachKey(<name>Procedure procedure);

@@ -25,11 +25,9 @@ import org.eclipse.collections.api.<name>Iterable;
 import org.eclipse.collections.api.LazyIterable;
 import org.eclipse.collections.api.bag.primitive.Mutable<name>Bag;
 import org.eclipse.collections.api.block.function.primitive.<name>Function;
-import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.predicate.primitive.<name>Predicate;
 import org.eclipse.collections.api.block.procedure.Procedure2;
 import org.eclipse.collections.api.block.procedure.primitive.<name>Procedure;
-import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.iterator.<name>Iterator;
 import org.eclipse.collections.api.list.primitive.Mutable<name>List;
 import org.eclipse.collections.api.set.primitive.Mutable<name>Set;
@@ -53,20 +51,23 @@ public class Collect<name>Iterable\<T>
     {
         this.iterable = adapted;
         this.function = function;
-        this.<type>FunctionToProcedure = new <name>FunctionToProcedure\<T>(function);
+        this.<type>FunctionToProcedure = new <name>FunctionToProcedure\<>(function);
     }
 
+    @Override
     public <name>Iterator <type>Iterator()
     {
         return new <name>Iterator()
         {
             private final Iterator\<T> iterator = Collect<name>Iterable.this.iterable.iterator();
 
+            @Override
             public <type> next()
             {
                 return Collect<name>Iterable.this.function.<type>ValueOf(this.iterator.next());
             }
 
+            @Override
             public boolean hasNext()
             {
                 return this.iterator.hasNext();
@@ -74,6 +75,7 @@ public class Collect<name>Iterable\<T>
         };
     }
 
+    @Override
     public void forEach(<name>Procedure procedure)
     {
         this.each(procedure);
@@ -82,6 +84,7 @@ public class Collect<name>Iterable\<T>
     /**
      * @since 7.0.
      */
+    @Override
     public void each(<name>Procedure procedure)
     {
         this.iterable.forEachWith(this.<type>FunctionToProcedure, procedure);
@@ -108,62 +111,32 @@ public class Collect<name>Iterable\<T>
     @Override
     public int count(final <name>Predicate predicate)
     {
-        return this.iterable.count(new Predicate\<T>()
-        {
-            public boolean accept(T each)
-            {
-                return predicate.accept(Collect<name>Iterable.this.function.<type>ValueOf(each));
-            }
-        });
+        return this.iterable.count((T each) -> predicate.accept(this.function.<type>ValueOf(each)));
     }
 
     @Override
     public boolean anySatisfy(final <name>Predicate predicate)
     {
-        return this.iterable.anySatisfy(new Predicate\<T>()
-        {
-            public boolean accept(T each)
-            {
-                return predicate.accept(Collect<name>Iterable.this.function.<type>ValueOf(each));
-            }
-        });
+        return this.iterable.anySatisfy((T each) -> predicate.accept(this.function.<type>ValueOf(each)));
     }
 
     @Override
     public boolean allSatisfy(final <name>Predicate predicate)
     {
-        return this.iterable.allSatisfy(new Predicate\<T>()
-        {
-            public boolean accept(T each)
-            {
-                return predicate.accept(Collect<name>Iterable.this.function.<type>ValueOf(each));
-            }
-        });
+        return this.iterable.allSatisfy((T each) -> predicate.accept(this.function.<type>ValueOf(each)));
     }
 
     @Override
     public boolean noneSatisfy(final <name>Predicate predicate)
     {
-        return this.iterable.allSatisfy(new Predicate\<T>()
-        {
-            public boolean accept(T each)
-            {
-                return !predicate.accept(Collect<name>Iterable.this.function.<type>ValueOf(each));
-            }
-        });
+        return this.iterable.allSatisfy((T each) -> !predicate.accept(this.function.<type>ValueOf(each)));
     }
 
     @Override
     public <type>[] toArray()
     {
         final <type>[] array = new <type>[this.size()];
-        this.iterable.forEachWithIndex(new ObjectIntProcedure\<T>()
-        {
-            public void value(T each, int index)
-            {
-                array[index] = Collect<name>Iterable.this.function.<type>ValueOf(each);
-            }
-        });
+        this.iterable.forEachWithIndex((T each, int index) -> array[index] = this.function.<type>ValueOf(each));
         return array;
     }
 
@@ -229,6 +202,7 @@ public class Collect<name>Iterable\<T>
             this.function = function;
         }
 
+        @Override
         public void value(T each, <name>Procedure procedure)
         {
             procedure.value(this.function.<type>ValueOf(each));

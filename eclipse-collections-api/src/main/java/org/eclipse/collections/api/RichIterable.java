@@ -189,7 +189,7 @@ public interface RichIterable<T>
      * Example using an anonymous inner class:
      * <pre>
      * RichIterable&lt;Person&gt; tapped =
-     *     people.<b>tap</b>(new Procedure<Person>()
+     *     people.<b>tap</b>(new Procedure&lt;Person&gt;()
      *     {
      *         public void value(Person person)
      *         {
@@ -214,7 +214,7 @@ public interface RichIterable<T>
      * <p>
      * Example using an anonymous inner class:
      * <pre>
-     * people.each(new Procedure<Person>()
+     * people.each(new Procedure&lt;Person&gt;()
      * {
      *     public void value(Person person)
      *     {
@@ -527,7 +527,11 @@ public interface RichIterable<T>
 
     /**
      * Returns all elements of the source collection that are instances of the Class {@code clazz}.
-     *
+     * <p>
+     * <pre>
+     * RichIterable&lt;Integer&gt; integers =
+     *     List.mutable.with(new Integer(0), new Long(0L), new Double(0.0)).selectInstancesOf(Integer.class);
+     * </pre>
      * @since 2.0
      */
     <S> RichIterable<S> selectInstancesOf(Class<S> clazz);
@@ -1070,8 +1074,8 @@ public interface RichIterable<T>
      * <p>
      * Example using an anonymous inner class:
      * <pre>
-     * Function2<Integer, Integer, Integer> addParameterFunction =
-     *     new Function2<Integer, Integer, Integer>()
+     * Function2&lt;Integer, Integer, Integer&gt; addParameterFunction =
+     *     new Function2&lt;Integer, Integer, Integer&gt;()
      *     {
      *         public Integer value(final Integer each, final Integer parameter)
      *         {
@@ -1135,15 +1139,15 @@ public interface RichIterable<T>
      * Consider the following example where we have a {@code Person} class, and each {@code Person} has a list of {@code Address} objects.  Take the following {@link Function}:
      * <pre>
      * Function&lt;Person, List&lt;Address&gt;&gt; addressFunction = Person::getAddresses;
-     * MutableList&lt;Person&gt; people = ...;
+     * RichIterable&lt;Person&gt; people = ...;
      * </pre>
      * Using {@code collect} returns a collection of collections of addresses.
      * <pre>
-     * MutableList&lt;List&lt;Address&gt;&gt; addresses = people.collect(addressFunction);
+     * RichIterable&lt;List&lt;Address&gt;&gt; addresses = people.collect(addressFunction);
      * </pre>
      * Using {@code flatCollect} returns a single flattened list of addresses.
      * <pre>
-     * MutableList&lt;Address&gt; addresses = people.flatCollect(addressFunction);
+     * RichIterable&lt;Address&gt; addresses = people.flatCollect(addressFunction);
      * </pre>
      *
      * @param function The {@link Function} to apply
@@ -1250,7 +1254,11 @@ public interface RichIterable<T>
      *
      * @since 1.0
      */
-    T detectIfNone(Predicate<? super T> predicate, Function0<? extends T> function);
+    default T detectIfNone(Predicate<? super T> predicate, Function0<? extends T> function)
+    {
+        T result = this.detect(predicate);
+        return result == null ? function.value() : result;
+    }
 
     /**
      * Returns the first element of the iterable that evaluates to true for the specified predicate2 and parameter, or
@@ -1292,7 +1300,7 @@ public interface RichIterable<T>
      * Returns the total number of elements that evaluate to true for the specified predicate.
      * <p>
      * <pre>e.g.
-     * return lastNames.<b>countWith</b>(PredicatesLite.equal(), "Smith");
+     * return lastNames.<b>countWith</b>(Predicates2.equal(), "Smith");
      * </pre>
      */
     <P> int countWith(Predicate2<? super T, ? super P> predicate, P parameter);
@@ -1418,7 +1426,10 @@ public interface RichIterable<T>
      *
      * @since 1.0
      */
-    MutableList<T> toSortedList(Comparator<? super T> comparator);
+    default MutableList<T> toSortedList(Comparator<? super T> comparator)
+    {
+        return this.toList().sortThis(comparator);
+    }
 
     /**
      * Converts the collection to a MutableList implementation and sorts it based on the natural order of the
@@ -1524,6 +1535,7 @@ public interface RichIterable<T>
      * @since 1.0.
      */
     LazyIterable<T> asLazy();
+
     /**
      * Converts this iterable to an array.
      *
@@ -1558,6 +1570,38 @@ public interface RichIterable<T>
     T max(Comparator<? super T> comparator);
 
     /**
+     * Returns the minimum element out of this container based on the comparator as an Optional.
+     * If the container is empty {@link Optional#empty()} is returned.
+     *
+     * @throws NullPointerException if the minimum element is null
+     * @since 8.2
+     */
+    default Optional<T> minOptional(Comparator<? super T> comparator)
+    {
+        if (this.isEmpty())
+        {
+            return Optional.empty();
+        }
+        return Optional.of(this.min(comparator));
+    }
+
+    /**
+     * Returns the maximum element out of this container based on the comparator as an Optional.
+     * If the container is empty {@link Optional#empty()} is returned.
+     *
+     * @throws NullPointerException if the maximum element is null
+     * @since 8.2
+     */
+    default Optional<T> maxOptional(Comparator<? super T> comparator)
+    {
+        if (this.isEmpty())
+        {
+            return Optional.empty();
+        }
+        return Optional.of(this.max(comparator));
+    }
+
+    /**
      * Returns the minimum element out of this container based on the natural order.
      *
      * @throws ClassCastException     if the elements are not {@link Comparable}
@@ -1576,6 +1620,40 @@ public interface RichIterable<T>
     T max();
 
     /**
+     * Returns the minimum element out of this container based on the natural order as an Optional.
+     * If the container is empty {@link Optional#empty()} is returned.
+     *
+     * @throws ClassCastException   if the elements are not {@link Comparable}
+     * @throws NullPointerException if the minimum element is null
+     * @since 8.2
+     */
+    default Optional<T> minOptional()
+    {
+        if (this.isEmpty())
+        {
+            return Optional.empty();
+        }
+        return Optional.of(this.min());
+    }
+
+    /**
+     * Returns the maximum element out of this container based on the natural order as an Optional.
+     * If the container is empty {@link Optional#empty()} is returned.
+     *
+     * @throws ClassCastException   if the elements are not {@link Comparable}
+     * @throws NullPointerException if the maximum element is null
+     * @since 8.2
+     */
+    default Optional<T> maxOptional()
+    {
+        if (this.isEmpty())
+        {
+            return Optional.empty();
+        }
+        return Optional.of(this.max());
+    }
+
+    /**
      * Returns the minimum elements out of this container based on the natural order of the attribute returned by Function.
      *
      * @throws NoSuchElementException if the RichIterable is empty
@@ -1590,6 +1668,38 @@ public interface RichIterable<T>
      * @since 1.0
      */
     <V extends Comparable<? super V>> T maxBy(Function<? super T, ? extends V> function);
+
+    /**
+     * Returns the minimum elements out of this container based on the natural order of the attribute returned by Function as an Optional.
+     * If the container is empty {@link Optional#empty()} is returned.
+     *
+     * @throws NullPointerException if the minimum element is null
+     * @since 8.2
+     */
+    default <V extends Comparable<? super V>> Optional<T> minByOptional(Function<? super T, ? extends V> function)
+    {
+        if (this.isEmpty())
+        {
+            return Optional.empty();
+        }
+        return Optional.of(this.minBy(function));
+    }
+
+    /**
+     * Returns the maximum elements out of this container based on the natural order of the attribute returned by Function as an Optional.
+     * If the container is empty {@link Optional#empty()} is returned.
+     *
+     * @throws NullPointerException if the maximum element is null
+     * @since 8.2
+     */
+    default <V extends Comparable<? super V>> Optional<T> maxByOptional(Function<? super T, ? extends V> function)
+    {
+        if (this.isEmpty())
+        {
+            return Optional.empty();
+        }
+        return Optional.of(this.maxBy(function));
+    }
 
     /**
      * Returns the final long result of evaluating function for each element of the iterable and adding the results
@@ -1624,6 +1734,14 @@ public interface RichIterable<T>
     double sumOfDouble(DoubleFunction<? super T> function);
 
     /**
+     * Returns the result of summarizing the value returned from applying the IntFunction to
+     * each element of the iterable.
+     * <p>
+     * <pre>
+     * IntSummaryStatistics stats =
+     *     Lists.mutable.with(1, 2, 3).summarizeInt(Integer::intValue);
+     * </pre>
+     *
      * @since 8.0
      */
     default IntSummaryStatistics summarizeInt(IntFunction<? super T> function)
@@ -1634,6 +1752,14 @@ public interface RichIterable<T>
     }
 
     /**
+     * Returns the result of summarizing the value returned from applying the FloatFunction to
+     * each element of the iterable.
+     * <p>
+     * <pre>
+     * DoubleSummaryStatistics stats =
+     *     Lists.mutable.with(1, 2, 3).summarizeFloat(Integer::floatValue);
+     * </pre>
+     *
      * @since 8.0
      */
     default DoubleSummaryStatistics summarizeFloat(FloatFunction<? super T> function)
@@ -1644,6 +1770,14 @@ public interface RichIterable<T>
     }
 
     /**
+     * Returns the result of summarizing the value returned from applying the LongFunction to
+     * each element of the iterable.
+     * <p>
+     * <pre>
+     * LongSummaryStatistics stats =
+     *     Lists.mutable.with(1, 2, 3).summarizeLong(Integer::longValue);
+     * </pre>
+     *
      * @since 8.0
      */
     default LongSummaryStatistics summarizeLong(LongFunction<? super T> function)
@@ -1654,6 +1788,14 @@ public interface RichIterable<T>
     }
 
     /**
+     * Returns the result of summarizing the value returned from applying the DoubleFunction to
+     * each element of the iterable.
+     * <p>
+     * <pre>
+     * DoubleSummaryStatistics stats =
+     *     Lists.mutable.with(1, 2, 3).summarizeDouble(Integer::doubleValue);
+     * </pre>
+     *
      * @since 8.0
      */
     default DoubleSummaryStatistics summarizeDouble(DoubleFunction<? super T> function)
@@ -1665,7 +1807,11 @@ public interface RichIterable<T>
 
     /**
      * This method produces the equivalent result as {@link Stream#collect(Collector)}.
-     *
+     * <p>
+     * <pre>
+     * MutableObjectLongMap&lt;Integer&gt; map2 =
+     *     Lists.mutable.with(1, 2, 3, 4, 5).reduceInPlace(Collectors2.sumByInt(i -> Integer.valueOf(i % 2), Integer::intValue));
+     * </pre>
      * @since 8.0
      */
     default <R, A> R reduceInPlace(Collector<? super T, A, R> collector)
@@ -1766,10 +1912,8 @@ public interface RichIterable<T>
     }
 
     /**
-     * Returns a string representation of this collection.  The string representation consists of a list of the
-     * collection's elements in the order they are returned by its iterator, enclosed in the start and end strings.
-     * Adjacent elements are separated by the separator string.  Elements are converted to strings as by
-     * <tt>String.valueOf(Object)</tt>.
+     * Returns a string representation of this collection with the elements separated by the specified
+     * separator and enclosed between the start and end strings.
      *
      * @return a string representation of this collection.
      * @since 1.0
@@ -1906,10 +2050,15 @@ public interface RichIterable<T>
             R target);
 
     /**
-     * Returns a string representation of this RichIterable.  The string representation consists of a list of the
-     * RichIterable's elements in the order they are returned by its iterator, enclosed in square brackets
-     * (<tt>"[]"</tt>).  Adjacent elements are separated by the characters <tt>", "</tt> (comma and space).  Elements
-     * are converted to strings as by {@link String#valueOf(Object)}.
+     * Returns a string with the elements of this iterable separated by commas with spaces and
+     * enclosed in square brackets.
+     * <p>
+     * <pre>
+     * Assert.assertEquals("[]", Lists.mutable.empty().toString());
+     * Assert.assertEquals("[1]", Lists.mutable.with(1).toString());
+     * Assert.assertEquals("[1, 2, 3]", Lists.mutable.with(1, 2, 3).toString());
+     * </pre>
+     * @see java.util.AbstractCollection#toString()
      *
      * @return a string representation of this RichIterable
      * @since 1.0

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -10,11 +10,19 @@
 
 package org.eclipse.collections.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.DoubleSummaryStatistics;
+import java.util.HashSet;
+import java.util.IntSummaryStatistics;
 import java.util.Iterator;
 import java.util.List;
+import java.util.LongSummaryStatistics;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.collections.api.BooleanIterable;
@@ -82,7 +90,6 @@ import org.eclipse.collections.impl.factory.primitive.IntBags;
 import org.eclipse.collections.impl.factory.primitive.LongBags;
 import org.eclipse.collections.impl.factory.primitive.ShortBags;
 import org.eclipse.collections.impl.list.Interval;
-import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.list.mutable.primitive.BooleanArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.ByteArrayList;
 import org.eclipse.collections.impl.list.mutable.primitive.CharArrayList;
@@ -131,8 +138,8 @@ public abstract class AbstractRichIterableTestCase
     public void containsAllIterable()
     {
         RichIterable<Integer> collection = this.newWith(1, 2, 3, 4);
-        Assert.assertTrue(collection.containsAllIterable(FastList.newListWith(1, 2)));
-        Assert.assertFalse(collection.containsAllIterable(FastList.newListWith(1, 5)));
+        Assert.assertTrue(collection.containsAllIterable(Lists.mutable.with(1, 2)));
+        Assert.assertFalse(collection.containsAllIterable(Lists.mutable.with(1, 5)));
     }
 
     @Test
@@ -147,8 +154,8 @@ public abstract class AbstractRichIterableTestCase
     public void containsAllCollection()
     {
         RichIterable<Integer> collection = this.newWith(1, 2, 3, 4);
-        Assert.assertTrue(collection.containsAll(FastList.newListWith(1, 2)));
-        Assert.assertFalse(collection.containsAll(FastList.newListWith(1, 5)));
+        Assert.assertTrue(collection.containsAll(Lists.mutable.with(1, 2)));
+        Assert.assertFalse(collection.containsAll(Lists.mutable.with(1, 5)));
     }
 
     @Test
@@ -269,6 +276,32 @@ public abstract class AbstractRichIterableTestCase
     {
         Verify.assertContainsAll(this.newWith(1, 2, 3, 4).collect(String::valueOf), "1", "2", "3", "4");
         Verify.assertContainsAll(this.newWith(1, 2, 3, 4).collect(String::valueOf, UnifiedSet.newSet()), "1", "2", "3", "4");
+    }
+
+    @Test
+    public void collectTarget()
+    {
+        Assert.assertEquals(
+                Bags.mutable.of(2, 3, 4),
+                this.newWith(1, 2, 3).collect(each -> each + 1, Lists.mutable.empty()).toBag());
+        Assert.assertEquals(
+                Bags.mutable.of(2, 3, 4),
+                Bags.mutable.withAll(this.newWith(1, 2, 3).collect(each -> each + 1, new ArrayList<>())));
+        Assert.assertEquals(
+                Bags.mutable.of(2, 3, 4),
+                Bags.mutable.withAll(this.newWith(1, 2, 3).collect(each -> each + 1, new CopyOnWriteArrayList<>())));
+        Assert.assertEquals(
+                Bags.mutable.of(2, 3, 4),
+                this.newWith(1, 2, 3).collect(each -> each + 1, Bags.mutable.empty()));
+        Assert.assertEquals(
+                Sets.mutable.of(2, 3, 4),
+                this.newWith(1, 2, 3).collect(each -> each + 1, Sets.mutable.empty()));
+        Assert.assertEquals(
+                Sets.mutable.of(2, 3, 4),
+                this.newWith(1, 2, 3).collect(each -> each + 1, new HashSet<>()));
+        Assert.assertEquals(
+                Sets.mutable.of(2, 3, 4),
+                this.newWith(1, 2, 3).collect(each -> each + 1, new CopyOnWriteArraySet<>()));
     }
 
     @Test
@@ -483,10 +516,10 @@ public abstract class AbstractRichIterableTestCase
     public void flatCollect()
     {
         RichIterable<Integer> collection = this.newWith(1, 2, 3, 4);
-        Function<Integer, MutableList<String>> function = object -> FastList.newListWith(String.valueOf(object));
+        Function<Integer, MutableList<String>> function = object -> Lists.mutable.with(String.valueOf(object));
 
         Verify.assertListsEqual(
-                FastList.newListWith("1", "2", "3", "4"),
+                Lists.mutable.with("1", "2", "3", "4"),
                 collection.flatCollect(function).toSortedList());
 
         Verify.assertSetsEqual(
@@ -499,6 +532,14 @@ public abstract class AbstractRichIterableTestCase
     {
         Assert.assertEquals(Integer.valueOf(3), this.newWith(1, 2, 3, 4, 5).detect(Integer.valueOf(3)::equals));
         Assert.assertNull(this.newWith(1, 2, 3, 4, 5).detect(Integer.valueOf(6)::equals));
+    }
+
+    @Test
+    public void detectOptional()
+    {
+        Assert.assertEquals(Integer.valueOf(3), this.newWith(1, 2, 3, 4, 5).detectOptional(Integer.valueOf(3)::equals).get());
+        Assert.assertNotNull(this.newWith(1, 2, 3, 4, 5).detectOptional(Integer.valueOf(6)::equals));
+        Verify.assertThrows(NoSuchElementException.class, () -> this.newWith(1, 2, 3, 4, 5).detectOptional(Integer.valueOf(6)::equals).get());
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -606,6 +647,14 @@ public abstract class AbstractRichIterableTestCase
     {
         Assert.assertEquals(Integer.valueOf(3), this.newWith(1, 2, 3, 4, 5).detectWith(Object::equals, 3));
         Assert.assertNull(this.newWith(1, 2, 3, 4, 5).detectWith(Object::equals, 6));
+    }
+
+    @Test
+    public void detectWithOptional()
+    {
+        Assert.assertEquals(Integer.valueOf(3), this.newWith(1, 2, 3, 4, 5).detectWithOptional(Object::equals, 3).get());
+        Assert.assertNotNull(this.newWith(1, 2, 3, 4, 5).detectWithOptional(Object::equals, 6));
+        Verify.assertThrows(NoSuchElementException.class, () -> this.newWith(1, 2, 3, 4, 5).detectWithOptional(Object::equals, 6).get());
     }
 
     @Test
@@ -720,10 +769,22 @@ public abstract class AbstractRichIterableTestCase
                 this.newWith(1, 2, 3).collectWith(AddFunction.INTEGER, 1, Lists.mutable.empty()).toBag());
         Assert.assertEquals(
                 Bags.mutable.of(2, 3, 4),
+                Bags.mutable.withAll(this.newWith(1, 2, 3).collectWith(AddFunction.INTEGER, 1, new ArrayList<>())));
+        Assert.assertEquals(
+                Bags.mutable.of(2, 3, 4),
+                Bags.mutable.withAll(this.newWith(1, 2, 3).collectWith(AddFunction.INTEGER, 1, new CopyOnWriteArrayList<>())));
+        Assert.assertEquals(
+                Bags.mutable.of(2, 3, 4),
                 this.newWith(1, 2, 3).collectWith(AddFunction.INTEGER, 1, Bags.mutable.empty()));
         Assert.assertEquals(
                 Sets.mutable.of(2, 3, 4),
                 this.newWith(1, 2, 3).collectWith(AddFunction.INTEGER, 1, Sets.mutable.empty()));
+        Assert.assertEquals(
+                Sets.mutable.of(2, 3, 4),
+                this.newWith(1, 2, 3).collectWith(AddFunction.INTEGER, 1, new HashSet<>()));
+        Assert.assertEquals(
+                Sets.mutable.of(2, 3, 4),
+                this.newWith(1, 2, 3).collectWith(AddFunction.INTEGER, 1, new CopyOnWriteArraySet<>()));
     }
 
     @Test
@@ -855,6 +916,15 @@ public abstract class AbstractRichIterableTestCase
     }
 
     @Test
+    public void summarizeFloat()
+    {
+        RichIterable<Integer> objects = this.newWith(1, 2, 3);
+        DoubleSummaryStatistics expected = objects.summarizeFloat(Integer::floatValue);
+        Assert.assertEquals(6.0d, expected.getSum(), 0.0);
+        Assert.assertEquals(3, expected.getCount());
+    }
+
+    @Test
     public void sumFloatConsistentRounding1()
     {
         MutableList<Integer> list = Interval.oneTo(100_000).toList().shuffleThis();
@@ -890,6 +960,15 @@ public abstract class AbstractRichIterableTestCase
     }
 
     @Test
+    public void summarizeDouble()
+    {
+        RichIterable<Integer> objects = this.newWith(1, 2, 3);
+        DoubleSummaryStatistics expected = objects.summarizeDouble(Integer::doubleValue);
+        Assert.assertEquals(6.0d, expected.getSum(), 0.0);
+        Assert.assertEquals(3, expected.getCount());
+    }
+
+    @Test
     public void sumDoubleConsistentRounding1()
     {
         MutableList<Integer> list = Interval.oneTo(100_000).toList().shuffleThis();
@@ -921,12 +1000,30 @@ public abstract class AbstractRichIterableTestCase
     }
 
     @Test
+    public void summarizeInt()
+    {
+        RichIterable<Integer> objects = this.newWith(1, 2, 3);
+        IntSummaryStatistics expected = objects.summarizeInt(Integer::intValue);
+        Assert.assertEquals(6, expected.getSum());
+        Assert.assertEquals(3, expected.getCount());
+    }
+
+    @Test
     public void sumLong()
     {
         RichIterable<Integer> objects = this.newWith(1, 2, 3);
         long expected = objects.injectInto(0L, AddFunction.INTEGER_TO_LONG);
         long actual = objects.sumOfLong(Integer::longValue);
         Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void summarizeLong()
+    {
+        RichIterable<Integer> objects = this.newWith(1, 2, 3);
+        LongSummaryStatistics expected = objects.summarizeLong(Integer::longValue);
+        Assert.assertEquals(6, expected.getSum());
+        Assert.assertEquals(3, expected.getCount());
     }
 
     @Test
@@ -1038,7 +1135,7 @@ public abstract class AbstractRichIterableTestCase
     public void partitionWith()
     {
         RichIterable<Integer> integers = this.newWith(-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        PartitionIterable<Integer> result = integers.partitionWith(Predicates2.in(), FastList.newListWith(-2, 0, 2, 4, 6, 8));
+        PartitionIterable<Integer> result = integers.partitionWith(Predicates2.in(), Lists.mutable.with(-2, 0, 2, 4, 6, 8));
         Assert.assertEquals(this.newWith(-2, 0, 2, 4, 6, 8), result.getSelected());
         Assert.assertEquals(this.newWith(-3, -1, 1, 3, 5, 7, 9), result.getRejected());
     }
@@ -1077,7 +1174,7 @@ public abstract class AbstractRichIterableTestCase
     {
         RichIterable<Integer> integers = this.newWith(2, 4, 1, 3);
         MutableList<Integer> list = integers.toSortedList(Collections.reverseOrder());
-        Assert.assertEquals(FastList.newListWith(4, 3, 2, 1), list);
+        Assert.assertEquals(Lists.mutable.with(4, 3, 2, 1), list);
     }
 
     @Test(expected = NullPointerException.class)
@@ -1121,7 +1218,7 @@ public abstract class AbstractRichIterableTestCase
     {
         RichIterable<Integer> integers = this.newWith(2, 4, 1, 3);
         MutableList<Integer> list = integers.toSortedListBy(String::valueOf);
-        Assert.assertEquals(FastList.newListWith(1, 2, 3, 4), list);
+        Assert.assertEquals(Lists.mutable.with(1, 2, 3, 4), list);
     }
 
     @Test
@@ -1177,7 +1274,7 @@ public abstract class AbstractRichIterableTestCase
         RichIterable<Integer> integers = this.newWith(1, 2, 3);
         MutableSortedMap<Integer, String> map = integers.toSortedMap(Functions.getIntegerPassThru(), Object::toString);
         Verify.assertMapsEqual(TreeSortedMap.newMapWith(1, "1", 2, "2", 3, "3"), map);
-        Verify.assertListsEqual(FastList.newListWith(1, 2, 3), map.keySet().toList());
+        Verify.assertListsEqual(Lists.mutable.with(1, 2, 3), map.keySet().toList());
     }
 
     @Test
@@ -1187,7 +1284,7 @@ public abstract class AbstractRichIterableTestCase
         MutableSortedMap<Integer, String> map = integers.toSortedMap(Comparators.reverseNaturalOrder(),
                 Functions.getIntegerPassThru(), Object::toString);
         Verify.assertMapsEqual(TreeSortedMap.newMapWith(Comparators.reverseNaturalOrder(), 1, "1", 2, "2", 3, "3"), map);
-        Verify.assertListsEqual(FastList.newListWith(3, 2, 1), map.keySet().toList());
+        Verify.assertListsEqual(Lists.mutable.with(3, 2, 1), map.keySet().toList());
     }
 
     @Test
@@ -1374,7 +1471,7 @@ public abstract class AbstractRichIterableTestCase
         RichIterable<String> collection = this.newWith("1", "2", "3", "4", "5", "6", "7");
         RichIterable<RichIterable<String>> groups = collection.chunk(2);
         RichIterable<Integer> sizes = groups.collect(RichIterable::size);
-        Assert.assertEquals(FastList.newListWith(2, 2, 2, 1), sizes);
+        Assert.assertEquals(Lists.mutable.with(2, 2, 2, 1), sizes);
     }
 
     @Test
@@ -1390,7 +1487,7 @@ public abstract class AbstractRichIterableTestCase
     {
         RichIterable<String> collection = this.newWith("1");
         RichIterable<RichIterable<String>> groups = collection.chunk(2);
-        Assert.assertEquals(FastList.newListWith(1), groups.collect(RichIterable::size));
+        Assert.assertEquals(Lists.mutable.with(1), groups.collect(RichIterable::size));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -1403,8 +1500,8 @@ public abstract class AbstractRichIterableTestCase
     @Test
     public void chunk_large_size()
     {
-        RichIterable<String> collection = FastList.newListWith("1", "2", "3", "4", "5", "6", "7");
-        Assert.assertEquals(collection, collection.chunk(10).getFirst());
+        RichIterable<String> collection = this.newWith("1", "2", "3", "4", "5", "6", "7");
+        Assert.assertEquals(collection, collection.chunk(10).getOnly());
     }
 
     @Test
@@ -1462,5 +1559,32 @@ public abstract class AbstractRichIterableTestCase
             Assert.assertEquals(4, aggregation.get("2").intValue());
             Assert.assertEquals(3, aggregation.get("3").intValue());
         }
+    }
+
+    @Test
+    public void reduceOptional()
+    {
+        RichIterable<Integer> littleIterable = this.newWith(1, 2, 3);
+        Optional<Integer> result =
+                littleIterable.reduce(Integer::sum);
+        Assert.assertEquals(6, result.get().intValue());
+
+        RichIterable<Integer> bigIterable = this.newWith(Interval.oneTo(20).toArray());
+        Optional<Integer> bigResult =
+                bigIterable.reduce(Integer::max);
+        Assert.assertEquals(20, bigResult.get().intValue());
+
+        Optional<Integer> max =
+                littleIterable.reduce(Integer::max);
+        Assert.assertEquals(3, max.get().intValue());
+
+        Optional<Integer> min =
+                littleIterable.reduce(Integer::min);
+        Assert.assertEquals(1, min.get().intValue());
+
+        RichIterable<Integer> iterableEmpty = this.newWith();
+        Optional<Integer> resultEmpty =
+                iterableEmpty.reduce(Integer::sum);
+        Assert.assertFalse(resultEmpty.isPresent());
     }
 }

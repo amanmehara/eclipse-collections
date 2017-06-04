@@ -10,6 +10,8 @@
 
 package org.eclipse.collections.impl.collector;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -18,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.collections.api.RichIterable;
@@ -87,6 +90,7 @@ import org.eclipse.collections.impl.map.mutable.primitive.ObjectDoubleHashMap;
 import org.eclipse.collections.impl.map.mutable.primitive.ObjectLongHashMap;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples;
+import org.eclipse.collections.impl.utility.Iterate;
 
 /**
  * <p>A set of Collectors for Eclipse Collections types and algorithms.</p>
@@ -1191,6 +1195,86 @@ public final class Collectors2
     }
 
     /**
+     * <p>Groups and sums the values using the two specified functions.</p>
+     * <p>Examples:</p>
+     * {@code MutableMap<Integer, BigDecimal> sumBy1 =
+     * Interval.oneTo(10).stream().collect(Collectors2.sumByBigDecimal(each -> (each.intValue() % 2), BigDecimal::new));}<br>
+     * {@code MutableMap<Integer, BigDecimal> sumBy2 =
+     * Interval.oneTo(10).reduceInPlace(Collectors2.sumByBigDecimal(each -> (each.intValue() % 2), BigDecimal::new));}<br>
+     * <p>
+     * Equivalent to using @{@link Iterate#sumByBigDecimal(Iterable, Function, Function)}
+     * </p>
+     * {@code MutableMap<Integer, BigDecimal> sumBy =
+     * Iterate.sumByBigDecimal(Interval.oneTo(10), each -> (each.intValue() % 2), BigDecimal::new));}<br>
+     *
+     * @since 8.1
+     */
+    public static <T, V> Collector<T, ?, MutableMap<V, BigDecimal>> sumByBigDecimal(
+            Function<? super T, ? extends V> groupBy,
+            Function<? super T, BigDecimal> function)
+    {
+        return Collector.of(
+                Maps.mutable::empty,
+                (map, each) ->
+                {
+                    V key = groupBy.apply(each);
+                    BigDecimal oldValue = map.get(key);
+                    BigDecimal valueToAdd = function.valueOf(each);
+                    map.put(key, oldValue == null ? valueToAdd : oldValue.add(valueToAdd));
+                },
+                (map1, map2) ->
+                {
+                    map2.forEachKeyValue((key, value) ->
+                    {
+                        BigDecimal oldValue = map1.get(key);
+                        map1.put(key, oldValue == null ? value : oldValue.add(value));
+                    });
+                    return map1;
+                },
+                Collector.Characteristics.UNORDERED);
+    }
+
+    /**
+     * <p>Groups and sums the values using the two specified functions.</p>
+     * <p>Examples:</p>
+     * {@code MutableMap<Integer, BigInteger> sumBy1 =
+     * Interval.oneTo(10).stream().collect(Collectors2.sumByBigInteger(each -> (each.intValue() % 2), each -> BigInteger.valueOf(each.longValue())));}<br>
+     * {@code MutableMap<Integer, BigInteger> sumBy2 =
+     * Interval.oneTo(10).reduceInPlace(Collectors2.sumByBigInteger(each -> (each.intValue() % 2), each -> BigInteger.valueOf(each.longValue())));}<br>
+     * <p>
+     * Equivalent to using @{@link Iterate#sumByBigInteger(Iterable, Function, Function)}
+     * </p>
+     * {@code MutableMap<Integer, BigInteger> sumBy =
+     * Iterate.sumByBigInteger(Interval.oneTo(10), each -> (each.intValue() % 2), each -> BigInteger.valueOf(each.longValue())));}<br>
+     *
+     * @since 8.1
+     */
+    public static <T, V> Collector<T, ?, MutableMap<V, BigInteger>> sumByBigInteger(
+            Function<? super T, ? extends V> groupBy,
+            Function<? super T, BigInteger> function)
+    {
+        return Collector.of(
+                Maps.mutable::empty,
+                (map, each) ->
+                {
+                    V key = groupBy.apply(each);
+                    BigInteger oldValue = map.get(key);
+                    BigInteger valueToAdd = function.valueOf(each);
+                    map.put(key, oldValue == null ? valueToAdd : oldValue.add(valueToAdd));
+                },
+                (map1, map2) ->
+                {
+                    map2.forEachKeyValue((key, value) ->
+                    {
+                        BigInteger oldValue = map1.get(key);
+                        map1.put(key, oldValue == null ? value : oldValue.add(value));
+                    });
+                    return map1;
+                },
+                Collector.Characteristics.UNORDERED);
+    }
+
+    /**
      * <p>Returns all elements of the stream that return true when evaluating the predicate. This method is also
      * commonly called filter. The new collection is created as the result of evaluating the provided Supplier.</p>
      * <p>Examples:</p>
@@ -1386,6 +1470,33 @@ public final class Collectors2
         return Collector.of(
                 supplier,
                 (collection, each) -> collection.add(function.valueOf(each)),
+                Collectors2.mergeCollections(),
+                EMPTY_CHARACTERISTICS);
+    }
+
+    /**
+     * The method {@code flatCollect} is a special case of {@link #collect(Function, Supplier)}. With {@code collect},
+     * when the {@link Function} returns a collection, the result is a collection of collections. {@code flatCollect} outputs
+     * a single "flattened" collection instead.  This method is commonly called flatMap.
+     * <p>Example:</p>
+     * <pre>{@code
+     * List<MutableList<String>> lists =
+     *     Lists.mutable.with(
+     *         Lists.mutable.with("a", "b"),
+     *         Lists.mutable.with("c", "d"),
+     *         Lists.mutable.with("e"));
+     *
+     * MutableList<String> flattened =
+     *     lists.stream().collect(Collectors2.flatCollect(l -> l, Lists.mutable::empty));
+     *
+     * Assert.assertEquals(Lists.mutable.with("a", "b", "c", "d", "e"), flattened);}</pre>
+     */
+    public static <T, V, R extends Collection<V>> Collector<T, ?, R> flatCollect(
+            Function<? super T, ? extends Iterable<V>> function, Supplier<R> supplier)
+    {
+        return Collector.of(
+                supplier,
+                (collection, each) -> Iterate.addAllTo(function.valueOf(each), collection),
                 Collectors2.mergeCollections(),
                 EMPTY_CHARACTERISTICS);
     }
@@ -1638,6 +1749,72 @@ public final class Collectors2
                     return collection1;
                 },
                 EMPTY_CHARACTERISTICS);
+    }
+
+    /**
+     * Returns a SummaryStatistics with results for int, long and double functions calculated for
+     * each element in the Stream or Collection this Collector is applied to.
+     *
+     * @since 8.1
+     */
+    public static <T> Collector<T, ?, SummaryStatistics<T>> summarizing(
+            ImmutableList<IntFunction<? super T>> intFunctions,
+            ImmutableList<LongFunction<? super T>> longFunctions,
+            ImmutableList<DoubleFunction<? super T>> doubleFunctions)
+    {
+        SummaryStatistics<T> summaryStatistics = new SummaryStatistics<>();
+        intFunctions.forEachWithIndex((each, index) -> summaryStatistics.addIntFunction(Integer.valueOf(index), each));
+        longFunctions.forEachWithIndex((each, index) -> summaryStatistics.addLongFunction(Integer.valueOf(index), each));
+        doubleFunctions.forEachWithIndex((each, index) -> summaryStatistics.addDoubleFunction(Integer.valueOf(index), each));
+        return summaryStatistics.toCollector();
+    }
+
+    /**
+     * Returns a BigDecimalSummaryStatistics applying the specified function to each element of the stream or collection.
+     *
+     * @since 8.1
+     */
+    public static <T> Collector<T, ?, BigDecimalSummaryStatistics> summarizingBigDecimal(Function<? super T, BigDecimal> function)
+    {
+        return Collector.of(
+                BigDecimalSummaryStatistics::new,
+                (stats, each) -> stats.value(function.apply(each)),
+                BigDecimalSummaryStatistics::merge,
+                Collector.Characteristics.UNORDERED);
+    }
+
+    /**
+     * Returns a BigIntegerSummaryStatistics applying the specified function to each element of the stream or collection.
+     *
+     * @since 8.1
+     */
+    public static <T> Collector<T, ?, BigIntegerSummaryStatistics> summarizingBigInteger(Function<? super T, BigInteger> function)
+    {
+        return Collector.of(
+                BigIntegerSummaryStatistics::new,
+                (stats, each) -> stats.value(function.apply(each)),
+                BigIntegerSummaryStatistics::merge,
+                Collector.Characteristics.UNORDERED);
+    }
+
+    /**
+     * Returns a BigDecimal sum applying the specified function to each element of the stream or collection.
+     *
+     * @since 8.1
+     */
+    public static <T> Collector<T, ?, BigDecimal> summingBigDecimal(Function<? super T, BigDecimal> function)
+    {
+        return Collectors.reducing(BigDecimal.ZERO, function, BigDecimal::add);
+    }
+
+    /**
+     * Returns a BigInteger sum applying the specified function to each element of the stream or collection.
+     *
+     * @since 8.1
+     */
+    public static <T> Collector<T, ?, BigInteger> summingBigInteger(Function<? super T, BigInteger> function)
+    {
+        return Collectors.reducing(BigInteger.ZERO, function, BigInteger::add);
     }
 
     private static <T, R extends Collection<T>> BinaryOperator<R> mergeCollections()

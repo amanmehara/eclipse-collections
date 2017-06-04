@@ -17,7 +17,7 @@ package org.eclipse.collections.api.bag.primitive;
 import org.eclipse.collections.api.<name>Iterable;
 import org.eclipse.collections.api.bag.Bag;
 import org.eclipse.collections.api.block.function.primitive.<name>ToObjectFunction;
-import org.eclipse.collections.api.block.predicate.primitive.IntPredicate;
+<if(!primitive.intPrimitive)>import org.eclipse.collections.api.block.predicate.primitive.IntPredicate;<endif>
 import org.eclipse.collections.api.block.predicate.primitive.<name>Predicate;
 import org.eclipse.collections.api.block.procedure.primitive.<name>IntProcedure;
 import org.eclipse.collections.api.list.ListIterable;
@@ -74,6 +74,7 @@ public interface <name>Bag extends <name>Iterable
 
     <sharedAPI(fileName(primitive), name)>
 
+    @Override
     \<V> Bag\<V> collect(<name>ToObjectFunction\<? extends V> function);
 
     /**

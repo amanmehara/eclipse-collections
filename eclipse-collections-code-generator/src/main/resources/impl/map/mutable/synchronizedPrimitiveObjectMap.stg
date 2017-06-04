@@ -14,6 +14,7 @@ class(primitive) ::= <<
 >>
 
 collectPrimitive(name, type) ::= <<
+@Override
 public Mutable<name>Bag collect<name>(<name>Function\<? super V> <type>Function)
 {
     synchronized (this.lock)
@@ -22,6 +23,7 @@ public Mutable<name>Bag collect<name>(<name>Function\<? super V> <type>Function)
     }
 }
 
+@Override
 public \<R extends Mutable<name>Collection> R collect<name>(<name>Function\<? super V> <type>Function, R target)
 {
     synchronized (this.lock)
@@ -135,17 +137,23 @@ public final class Synchronized<name>ObjectMap\<V>
     @GuardedBy("this.lock")
     private final Mutable<name>ObjectMap\<V> map;
 
-    Synchronized<name>ObjectMap(Mutable<name>ObjectMap\<V> map)
+    public Synchronized<name>ObjectMap(Mutable<name>ObjectMap\<V> map)
     {
         this(map, null);
     }
 
-    Synchronized<name>ObjectMap(Mutable<name>ObjectMap\<V> map, Object newLock)
+    public Synchronized<name>ObjectMap(Mutable<name>ObjectMap\<V> map, Object newLock)
     {
+        if(map == null)
+        {
+            throw new IllegalArgumentException("Cannot create a Synchronized<name>ObjectMap on a null map");
+        }
+
         this.map = map;
         this.lock = newLock == null ? this : newLock;
     }
 
+    @Override
     public V put(<type> key, V value)
     {
         synchronized (this.lock)
@@ -154,20 +162,16 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void putAll(<name>ObjectMap\<? extends V> map)
     {
         synchronized (this.lock)
         {
-            map.forEachKeyValue(new <name>ObjectProcedure\<V>()
-            {
-                public void value(<type> key, V value)
-                {
-                    Synchronized<name>ObjectMap.this.map.put(key, value);
-                }
-            });
+            map.forEachKeyValue(this.map::put);
         }
     }
 
+    @Override
     public V removeKey(<type> key)
     {
         synchronized (this.lock)
@@ -176,6 +180,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V remove(<type> key)
     {
         synchronized (this.lock)
@@ -184,6 +189,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V getIfAbsentPut(<type> key, V value)
     {
         synchronized (this.lock)
@@ -192,6 +198,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V getIfAbsentPut(<type> key, Function0\<? extends V> function)
     {
         synchronized (this.lock)
@@ -200,6 +207,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V getIfAbsentPutWithKey(<type> key, <name>ToObjectFunction\<? extends V> function)
     {
         synchronized (this.lock)
@@ -208,6 +216,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> V getIfAbsentPutWith(<type> key, Function\<? super P, ? extends V> function, P parameter)
     {
         synchronized (this.lock)
@@ -216,6 +225,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V updateValue(<type> key, Function0\<? extends V> factory, Function\<? super V, ? extends V> function)
     {
         synchronized (this.lock)
@@ -224,6 +234,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> V updateValueWith(<type> key, Function0\<? extends V> factory, Function2\<? super V, ? super P, ? extends V> function, P parameter)
     {
         synchronized (this.lock)
@@ -232,6 +243,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V get(<type> key)
     {
         synchronized (this.lock)
@@ -240,6 +252,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V getIfAbsent(<type> key, Function0\<? extends V> ifAbsent)
     {
         synchronized (this.lock)
@@ -248,6 +261,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean containsKey(<type> key)
     {
         synchronized (this.lock)
@@ -256,6 +270,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean containsValue(Object value)
     {
         synchronized (this.lock)
@@ -264,6 +279,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Mutable<name>ObjectMap\<V> tap(Procedure\<? super V> procedure)
     {
         synchronized (this.lock)
@@ -273,6 +289,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void forEachValue(Procedure\<? super V> procedure)
     {
         synchronized (this.lock)
@@ -281,6 +298,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void forEachKey(<name>Procedure procedure)
     {
         synchronized (this.lock)
@@ -289,6 +307,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void forEachKeyValue(<name>ObjectProcedure\<? super V> procedure)
     {
         synchronized (this.lock)
@@ -297,6 +316,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Mutable<name>ObjectMap\<V> select(<name>ObjectPredicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -305,6 +325,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Mutable<name>ObjectMap\<V> reject(<name>ObjectPredicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -313,6 +334,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public int size()
     {
         synchronized (this.lock)
@@ -321,6 +343,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean isEmpty()
     {
         synchronized (this.lock)
@@ -329,6 +352,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean notEmpty()
     {
         synchronized (this.lock)
@@ -337,6 +361,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V getFirst()
     {
         synchronized (this.lock)
@@ -345,6 +370,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V getLast()
     {
         synchronized (this.lock)
@@ -353,6 +379,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V getOnly()
     {
         synchronized (this.lock)
@@ -361,6 +388,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean contains(Object object)
     {
         synchronized (this.lock)
@@ -369,6 +397,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean containsAllIterable(Iterable\<?> source)
     {
         synchronized (this.lock)
@@ -377,6 +406,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean containsAll(Collection\<?> source)
     {
         synchronized (this.lock)
@@ -385,6 +415,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean containsAllArguments(Object... elements)
     {
         synchronized (this.lock)
@@ -393,6 +424,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableBag\<V> select(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -401,6 +433,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<R extends Collection\<V>\> R select(Predicate\<? super V> predicate, R target)
     {
         synchronized (this.lock)
@@ -409,6 +442,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> MutableBag\<V> selectWith(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -417,6 +451,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P, R extends Collection\<V>\> R selectWith(Predicate2\<? super V, ? super P> predicate, P parameter, R targetCollection)
     {
         synchronized (this.lock)
@@ -425,6 +460,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public PartitionMutableBag\<V> partition(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -433,6 +469,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> PartitionMutableBag\<V> partitionWith(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -441,6 +478,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<S> MutableBag\<S> selectInstancesOf(Class\<S> clazz)
     {
         synchronized (this.lock)
@@ -453,6 +491,7 @@ public final class Synchronized<name>ObjectMap\<V>
      * @deprecated in 7.0. Use {@link OrderedIterable#zipWithIndex()} instead.
      */
     @Deprecated
+    @Override
     public MutableSet\<Pair\<V, Integer>\> zipWithIndex()
     {
         synchronized (this.lock)
@@ -461,6 +500,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<R extends Collection\<Pair\<V, Integer>\>> R zipWithIndex(R target)
     {
         synchronized (this.lock)
@@ -469,6 +509,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public RichIterable\<RichIterable\<V>\> chunk(int size)
     {
         synchronized (this.lock)
@@ -477,6 +518,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<K, VV> MutableMap\<K, VV> aggregateInPlaceBy(Function\<? super V, ? extends K> groupBy, Function0\<? extends VV> zeroValueFactory, Procedure2\<? super VV, ? super V> mutatingAggregator)
     {
         synchronized (this.lock)
@@ -485,6 +527,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<K, VV> MutableMap\<K, VV> aggregateBy(Function\<? super V, ? extends K> groupBy, Function0\<? extends VV> zeroValueFactory, Function2\<? super VV, ? super V, ? extends VV> nonMutatingAggregator)
     {
         synchronized (this.lock)
@@ -493,6 +536,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableBag\<V> reject(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -501,6 +545,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<R extends Collection\<V>\> R reject(Predicate\<? super V> predicate, R target)
     {
         synchronized (this.lock)
@@ -509,6 +554,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> MutableBag\<V> rejectWith(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -517,6 +563,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P, R extends Collection\<V>\> R rejectWith(Predicate2\<? super V, ? super P> predicate, P parameter, R targetCollection)
     {
         synchronized (this.lock)
@@ -525,6 +572,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void clear()
     {
         synchronized (this.lock)
@@ -533,6 +581,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV> MutableBag\<VV> collect(Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -550,6 +599,7 @@ public final class Synchronized<name>ObjectMap\<V>
     <collectPrimitive("Long", "long")>
     <collectPrimitive("Short", "short")>
 
+    @Override
     public \<P, VV> MutableBag\<VV> collectWith(Function2\<? super V, ? super P, ? extends VV> function, P parameter)
     {
         synchronized (this.lock)
@@ -558,6 +608,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P, VV, R extends Collection\<VV>\> R collectWith(Function2\<? super V, ? super P, ? extends VV> function, P parameter, R targetCollection)
     {
         synchronized (this.lock)
@@ -566,6 +617,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV, R extends Collection\<VV>\> R collect(Function\<? super V, ? extends VV> function, R target)
     {
         synchronized (this.lock)
@@ -574,6 +626,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV> MutableBag\<VV> collectIf(Predicate\<? super V> predicate, Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -582,6 +635,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV, R extends Collection\<VV>\> R collectIf(Predicate\<? super V> predicate, Function\<? super V, ? extends VV> function, R target)
     {
         synchronized (this.lock)
@@ -590,6 +644,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV> MutableBag\<VV> flatCollect(Function\<? super V, ? extends Iterable\<VV>\> function)
     {
         synchronized (this.lock)
@@ -598,6 +653,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV, R extends Collection\<VV>\> R flatCollect(Function\<? super V, ? extends Iterable\<VV>\> function, R target)
     {
         synchronized (this.lock)
@@ -606,6 +662,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V detect(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -614,6 +671,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> V detectWith(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -622,6 +680,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Optional\<V> detectOptional(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -630,6 +689,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> Optional\<V> detectWithOptional(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -638,6 +698,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V detectIfNone(Predicate\<? super V> predicate, Function0\<? extends V> function)
     {
         synchronized (this.lock)
@@ -646,6 +707,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> V detectWithIfNone(Predicate2\<? super V, ? super P> predicate, P parameter, Function0\<? extends V> function)
     {
         synchronized (this.lock)
@@ -654,6 +716,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public int count(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -662,6 +725,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> int countWith(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -670,6 +734,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean anySatisfy(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -678,6 +743,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> boolean anySatisfyWith(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -686,6 +752,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean allSatisfy(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -694,6 +761,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> boolean allSatisfyWith(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -702,6 +770,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public boolean noneSatisfy(Predicate\<? super V> predicate)
     {
         synchronized (this.lock)
@@ -710,6 +779,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> boolean noneSatisfyWith(Predicate2\<? super V, ? super P> predicate, P parameter)
     {
         synchronized (this.lock)
@@ -718,6 +788,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<IV> IV injectInto(IV injectedValue, Function2\<? super IV, ? super V, ? extends IV> function)
     {
         synchronized (this.lock)
@@ -726,6 +797,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public int injectInto(int injectedValue, IntObjectToIntFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -734,6 +806,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public long injectInto(long injectedValue, LongObjectToLongFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -742,6 +815,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public float injectInto(float injectedValue, FloatObjectToFloatFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -750,6 +824,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public double injectInto(double injectedValue, DoubleObjectToDoubleFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -758,6 +833,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<R extends Collection\<V>\> R into(R target)
     {
         synchronized (this.lock)
@@ -766,6 +842,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableList\<V> toList()
     {
         synchronized (this.lock)
@@ -774,6 +851,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableList\<V> toSortedList()
     {
         synchronized (this.lock)
@@ -782,6 +860,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableList\<V> toSortedList(Comparator\<? super V> comparator)
     {
         synchronized (this.lock)
@@ -790,6 +869,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV extends Comparable\<? super VV>\> MutableList\<V> toSortedListBy(Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -798,6 +878,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableSet\<V> toSet()
     {
         synchronized (this.lock)
@@ -806,6 +887,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableSortedSet\<V> toSortedSet()
     {
         synchronized (this.lock)
@@ -814,6 +896,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableSortedSet\<V> toSortedSet(Comparator\<? super V> comparator)
     {
         synchronized (this.lock)
@@ -822,6 +905,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV extends Comparable\<? super VV>\> MutableSortedSet\<V> toSortedSetBy(Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -830,6 +914,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableBag\<V> toBag()
     {
         synchronized (this.lock)
@@ -838,6 +923,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableSortedBag\<V> toSortedBag()
     {
         synchronized (this.lock)
@@ -846,6 +932,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public MutableSortedBag\<V> toSortedBag(Comparator\<? super V> comparator)
     {
         synchronized (this.lock)
@@ -854,6 +941,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV extends Comparable\<? super VV>\> MutableSortedBag\<V> toSortedBagBy(Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -862,6 +950,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<NK, NV> MutableMap\<NK, NV> toMap(Function\<? super V, ? extends NK> keyFunction, Function\<? super V, ? extends NV> valueFunction)
     {
         synchronized (this.lock)
@@ -870,6 +959,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<NK, NV> MutableSortedMap\<NK, NV> toSortedMap(Function\<? super V, ? extends NK> keyFunction, Function\<? super V, ? extends NV> valueFunction)
     {
         synchronized (this.lock)
@@ -878,6 +968,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<NK, NV> MutableSortedMap\<NK, NV> toSortedMap(Comparator\<? super NK> comparator, Function\<? super V, ? extends NK> keyFunction, Function\<? super V, ? extends NV> valueFunction)
     {
         synchronized (this.lock)
@@ -886,6 +977,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public LazyIterable\<V> asLazy()
     {
         synchronized (this.lock)
@@ -894,6 +986,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Object[] toArray()
     {
         synchronized (this.lock)
@@ -902,6 +995,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<T> T[] toArray(T[] a)
     {
         synchronized (this.lock)
@@ -910,6 +1004,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V min(Comparator\<? super V> comparator)
     {
         synchronized (this.lock)
@@ -918,6 +1013,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V max(Comparator\<? super V> comparator)
     {
         synchronized (this.lock)
@@ -926,6 +1022,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V min()
     {
         synchronized (this.lock)
@@ -934,6 +1031,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public V max()
     {
         synchronized (this.lock)
@@ -942,6 +1040,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV extends Comparable\<? super VV>\> V maxBy(Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -950,6 +1049,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV extends Comparable\<? super VV>\> V minBy(Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -958,6 +1058,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public long sumOfInt(IntFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -966,6 +1067,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public double sumOfFloat(FloatFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -974,6 +1076,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public long sumOfLong(LongFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -982,6 +1085,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public double sumOfDouble(DoubleFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -990,6 +1094,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<V1> MutableObjectLongMap\<V1> sumByInt(Function\<? super V, ? extends V1> groupBy, IntFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -998,6 +1103,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<V1> MutableObjectDoubleMap\<V1> sumByFloat(Function\<? super V, ? extends V1> groupBy, FloatFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -1006,6 +1112,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<V1> MutableObjectLongMap\<V1> sumByLong(Function\<? super V, ? extends V1> groupBy, LongFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -1014,6 +1121,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<V1> MutableObjectDoubleMap\<V1> sumByDouble(Function\<? super V, ? extends V1> groupBy, DoubleFunction\<? super V> function)
     {
         synchronized (this.lock)
@@ -1022,6 +1130,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Mutable<name>Set keySet()
     {
         synchronized (this.lock)
@@ -1030,6 +1139,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Collection\<V> values()
     {
         synchronized (this.lock)
@@ -1038,6 +1148,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Lazy<name>Iterable keysView()
     {
         synchronized (this.lock)
@@ -1046,6 +1157,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public RichIterable\<<name>ObjectPair\<V>\> keyValuesView()
     {
         synchronized (this.lock)
@@ -1081,6 +1193,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public String makeString()
     {
         synchronized (this.lock)
@@ -1089,6 +1202,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public String makeString(String separator)
     {
         synchronized (this.lock)
@@ -1097,6 +1211,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public String makeString(String start, String separator, String end)
     {
         synchronized (this.lock)
@@ -1105,6 +1220,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void appendString(Appendable appendable)
     {
         synchronized (this.lock)
@@ -1113,6 +1229,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void appendString(Appendable appendable, String separator)
     {
         synchronized (this.lock)
@@ -1121,6 +1238,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void appendString(Appendable appendable, String start, String separator, String end)
     {
         synchronized (this.lock)
@@ -1129,6 +1247,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV> MutableBagMultimap\<VV, V> groupBy(Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -1137,6 +1256,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV, R extends MutableMultimap\<VV, V>\> R groupBy(Function\<? super V, ? extends VV> function, R target)
     {
         synchronized (this.lock)
@@ -1145,6 +1265,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV> MutableBagMultimap\<VV, V> groupByEach(Function\<? super V, ? extends Iterable\<VV>\> function)
     {
         synchronized (this.lock)
@@ -1153,6 +1274,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV, R extends MutableMultimap\<VV, V>\> R groupByEach(Function\<? super V, ? extends Iterable\<VV>\> function, R target)
     {
         synchronized (this.lock)
@@ -1161,6 +1283,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV> MutableMap\<VV, V> groupByUniqueKey(Function\<? super V, ? extends VV> function)
     {
         synchronized (this.lock)
@@ -1169,6 +1292,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<VV, R extends MutableMap\<VV, V>\> R groupByUniqueKey(Function\<? super V, ? extends VV> function, R target)
     {
         synchronized (this.lock)
@@ -1181,6 +1305,7 @@ public final class Synchronized<name>ObjectMap\<V>
      * @deprecated in 7.0. Use {@link OrderedIterable#zip(Iterable)} instead.
      */
     @Deprecated
+    @Override
     public \<S> MutableBag\<Pair\<V, S>\> zip(Iterable\<S> that)
     {
         synchronized (this.lock)
@@ -1189,6 +1314,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<S, R extends Collection\<Pair\<V, S>\>> R zip(Iterable\<S> that, R target)
     {
         synchronized (this.lock)
@@ -1197,6 +1323,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public Mutable<name>ObjectMap\<V> withKeyValue(<type> key, V value)
     {
         synchronized (this.lock)
@@ -1206,6 +1333,7 @@ public final class Synchronized<name>ObjectMap\<V>
         return this;
     }
 
+    @Override
     public Mutable<name>ObjectMap\<V> withoutKey(<type> key)
     {
         synchronized (this.lock)
@@ -1215,6 +1343,7 @@ public final class Synchronized<name>ObjectMap\<V>
         return this;
     }
 
+    @Override
     public Mutable<name>ObjectMap\<V> withoutAllKeys(<name>Iterable keys)
     {
         synchronized (this.lock)
@@ -1224,26 +1353,31 @@ public final class Synchronized<name>ObjectMap\<V>
         return this;
     }
 
+    @Override
     public Mutable<name>ObjectMap\<V> asUnmodifiable()
     {
-        return new Unmodifiable<name>ObjectMap\<V>(this);
+        return new Unmodifiable<name>ObjectMap\<>(this);
     }
 
+    @Override
     public Mutable<name>ObjectMap\<V> asSynchronized()
     {
         return this;
     }
 
+    @Override
     public Immutable<name>ObjectMap\<V> toImmutable()
     {
         return <name>ObjectMaps.immutable.withAll(this);
     }
 
+    @Override
     public void forEach(Procedure\<? super V> procedure)
     {
         this.each(procedure);
     }
 
+    @Override
     public void each(Procedure\<? super V> procedure)
     {
         synchronized (this.lock)
@@ -1252,6 +1386,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public void forEachWithIndex(ObjectIntProcedure\<? super V> objectIntProcedure)
     {
         synchronized (this.lock)
@@ -1260,6 +1395,7 @@ public final class Synchronized<name>ObjectMap\<V>
         }
     }
 
+    @Override
     public \<P> void forEachWith(Procedure2\<? super V, ? super P> procedure, P parameter)
     {
         synchronized (this.lock)
@@ -1271,6 +1407,7 @@ public final class Synchronized<name>ObjectMap\<V>
     /**
      * Must be called in a synchronized block.
      */
+    @Override
     public Iterator\<V> iterator()
     {
         return this.map.iterator();

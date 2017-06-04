@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -14,6 +14,7 @@ import java.util.EmptyStackException;
 
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.ordered.OrderedIterable;
 import org.eclipse.collections.api.stack.MutableStack;
 import org.eclipse.collections.api.stack.StackIterable;
 import org.eclipse.collections.impl.block.factory.Procedures;
@@ -100,6 +101,20 @@ public interface StackIterableTestCase extends OrderedIterableWithDuplicatesTest
     default void OrderedIterable_getLast()
     {
         assertThrows(UnsupportedOperationException.class, this.newWith(3, 3, 3, 2, 2, 1)::getLast);
+    }
+
+    @Override
+    @Test(expected = UnsupportedOperationException.class)
+    default void OrderedIterable_getLastOptional()
+    {
+        ((OrderedIterable<?>) this.newWith(3, 2, 1)).getLastOptional();
+    }
+
+    @Override
+    @Test(expected = UnsupportedOperationException.class)
+    default void OrderedIterable_getLastOptional_null_element()
+    {
+        ((OrderedIterable<?>) this.newWith(new Object[]{null})).getLastOptional();
     }
 
     @Test

@@ -10,7 +10,6 @@
 
 package org.eclipse.collections.impl.bag.mutable;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import org.eclipse.collections.api.RichIterable;
@@ -34,28 +33,6 @@ public abstract class AbstractHashBag<T> extends AbstractMutableBag<T>
 {
     protected MutableObjectIntMap<T> items;
     protected int size;
-
-    @Override
-    public boolean addAll(Collection<? extends T> source)
-    {
-        if (source instanceof Bag)
-        {
-            return this.addAllBag((Bag<T>) source);
-        }
-        return super.addAll(source);
-    }
-
-    protected boolean addAllBag(Bag<? extends T> source)
-    {
-        source.forEachWithOccurrences(new ObjectIntProcedure<T>()
-        {
-            public void value(T each, int occurrences)
-            {
-                AbstractHashBag.this.addOccurrences(each, occurrences);
-            }
-        });
-        return source.notEmpty();
-    }
 
     @Override
     public int addOccurrences(T item, int occurrences)
@@ -178,7 +155,8 @@ public abstract class AbstractHashBag<T> extends AbstractMutableBag<T>
     @Override
     public void each(Procedure<? super T> procedure)
     {
-        this.items.forEachKeyValue((key, count) -> {
+        this.items.forEachKeyValue((key, count) ->
+        {
             for (int i = 0; i < count; i++)
             {
                 procedure.value(key);
@@ -190,7 +168,8 @@ public abstract class AbstractHashBag<T> extends AbstractMutableBag<T>
     public void forEachWithIndex(ObjectIntProcedure<? super T> objectIntProcedure)
     {
         Counter index = new Counter();
-        this.items.forEachKeyValue((key, count) -> {
+        this.items.forEachKeyValue((key, count) ->
+        {
             for (int i = 0; i < count; i++)
             {
                 objectIntProcedure.value(key, index.getCount());
@@ -202,7 +181,8 @@ public abstract class AbstractHashBag<T> extends AbstractMutableBag<T>
     @Override
     public <P> void forEachWith(Procedure2<? super T, ? super P> procedure, P parameter)
     {
-        this.items.forEachKeyValue((key, count) -> {
+        this.items.forEachKeyValue((key, count) ->
+        {
             for (int i = 0; i < count; i++)
             {
                 procedure.value(key, parameter);
@@ -311,13 +291,10 @@ public abstract class AbstractHashBag<T> extends AbstractMutableBag<T>
         if (iterable instanceof Bag)
         {
             Bag<?> source = (Bag<?>) iterable;
-            source.forEachWithOccurrences(new ObjectIntProcedure<Object>()
+            source.forEachWithOccurrences((each, parameter) ->
             {
-                public void value(Object each, int parameter)
-                {
-                    int removed = AbstractHashBag.this.items.removeKeyIfAbsent((T) each, 0);
-                    AbstractHashBag.this.size -= removed;
-                }
+                int removed = this.items.removeKeyIfAbsent((T) each, 0);
+                this.size -= removed;
             });
         }
         else
