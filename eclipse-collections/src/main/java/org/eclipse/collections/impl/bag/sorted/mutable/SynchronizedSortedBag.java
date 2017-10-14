@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -17,8 +17,6 @@ import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
-import net.jcip.annotations.GuardedBy;
-import net.jcip.annotations.ThreadSafe;
 import org.eclipse.collections.api.LazyIterable;
 import org.eclipse.collections.api.bag.ParallelBag;
 import org.eclipse.collections.api.bag.sorted.ImmutableSortedBag;
@@ -66,7 +64,6 @@ import org.eclipse.collections.impl.stack.mutable.ArrayStack;
  *
  * @see MutableSortedBag#asSynchronized()
  */
-@ThreadSafe
 public class SynchronizedSortedBag<T>
         extends AbstractSynchronizedMutableCollection<T>
         implements MutableSortedBag<T>, Serializable
@@ -94,7 +91,6 @@ public class SynchronizedSortedBag<T>
     }
 
     @Override
-    @GuardedBy("getLock()")
     protected MutableSortedBag<T> getDelegate()
     {
         return (MutableSortedBag<T>) super.getDelegate();
@@ -634,6 +630,15 @@ public class SynchronizedSortedBag<T>
         synchronized (this.lock)
         {
             this.getDelegate().reverseForEach(procedure);
+        }
+    }
+
+    @Override
+    public void reverseForEachWithIndex(ObjectIntProcedure<? super T> procedure)
+    {
+        synchronized (this.lock)
+        {
+            this.getDelegate().reverseForEachWithIndex(procedure);
         }
     }
 

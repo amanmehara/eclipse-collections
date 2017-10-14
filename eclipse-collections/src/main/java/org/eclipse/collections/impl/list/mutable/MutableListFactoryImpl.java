@@ -10,14 +10,14 @@
 
 package org.eclipse.collections.impl.list.mutable;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.factory.list.MutableListFactory;
 import org.eclipse.collections.api.list.MutableList;
 
-@Immutable
-public final class MutableListFactoryImpl implements MutableListFactory
+public enum MutableListFactoryImpl implements MutableListFactory
 {
+    INSTANCE;
+
     @Override
     public <T> MutableList<T> empty()
     {
@@ -46,6 +46,23 @@ public final class MutableListFactoryImpl implements MutableListFactory
     public <T> MutableList<T> with(T... items)
     {
         return FastList.newListWith(items);
+    }
+
+    @Override
+    public <T> MutableList<T> ofInitialCapacity(int capacity)
+    {
+        return this.withInitialCapacity(capacity);
+    }
+
+    @Override
+    public <T> MutableList<T> withInitialCapacity(int capacity)
+    {
+        if (capacity < 0)
+        {
+            throw new IllegalArgumentException("initial capacity cannot be less than 0");
+        }
+
+        return FastList.newList(capacity);
     }
 
     @Override

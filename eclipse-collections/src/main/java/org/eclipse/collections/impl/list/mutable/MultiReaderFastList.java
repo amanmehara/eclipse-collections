@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -571,6 +571,23 @@ public final class MultiReaderFastList<T>
         }
     }
 
+    /**
+     * @since 9.0.
+     */
+    @Override
+    public <V> MutableList<T> distinctBy(Function<? super T, ? extends V> function)
+    {
+        this.acquireReadLock();
+        try
+        {
+            return this.delegate.distinctBy(function);
+        }
+        finally
+        {
+            this.unlockReadLock();
+        }
+    }
+
     @Override
     public MutableList<T> sortThis()
     {
@@ -1042,6 +1059,12 @@ public final class MultiReaderFastList<T>
     }
 
     @Override
+    public void reverseForEachWithIndex(ObjectIntProcedure<? super T> procedure)
+    {
+        this.withReadLockRun(() -> this.getDelegate().reverseForEachWithIndex(procedure));
+    }
+
+    @Override
     public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super T> objectIntProcedure)
     {
         this.withReadLockRun(() -> this.getDelegate().forEachWithIndex(fromIndex, toIndex, objectIntProcedure));
@@ -1305,6 +1328,12 @@ public final class MultiReaderFastList<T>
         }
 
         @Override
+        public void reverseForEachWithIndex(ObjectIntProcedure<? super T> procedure)
+        {
+            this.getDelegate().reverseForEachWithIndex(procedure);
+        }
+
+        @Override
         public void forEachWithIndex(int fromIndex, int toIndex, ObjectIntProcedure<? super T> objectIntProcedure)
         {
             this.getDelegate().forEachWithIndex(fromIndex, toIndex, objectIntProcedure);
@@ -1332,6 +1361,15 @@ public final class MultiReaderFastList<T>
         public MutableList<T> distinct(HashingStrategy<? super T> hashingStrategy)
         {
             return this.getDelegate().distinct(hashingStrategy);
+        }
+
+        /**
+         * @since 9.0.
+         */
+        @Override
+        public <V> MutableList<T> distinctBy(Function<? super T, ? extends V> function)
+        {
+            return this.getDelegate().distinctBy(function);
         }
 
         @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -12,7 +12,6 @@ package org.eclipse.collections.api.list;
 
 import java.util.List;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.block.HashingStrategy;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function2;
@@ -46,7 +45,6 @@ import org.eclipse.collections.api.tuple.Pair;
  * implement the java.util.List interface so they can satisfy the equals() contract and be compared against other list
  * structures like FastList or ArrayList.
  */
-@Immutable
 public interface ImmutableList<T>
         extends ImmutableCollection<T>, ListIterable<T>
 {
@@ -134,6 +132,12 @@ public interface ImmutableList<T>
     @Override
     ImmutableList<T> distinct(HashingStrategy<? super T> hashingStrategy);
 
+    /**
+     * @since 9.0
+     */
+    @Override
+    <V> ImmutableList<T> distinctBy(Function<? super T, ? extends V> function);
+
     @Override
     <S> ImmutableList<Pair<T, S>> zip(Iterable<S> that);
 
@@ -161,6 +165,7 @@ public interface ImmutableList<T>
      * @see List#subList(int, int)
      * @since 6.0
      */
+    @Override
     ImmutableList<T> subList(int fromIndex, int toIndex);
 
     @Override

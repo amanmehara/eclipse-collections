@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -13,8 +13,12 @@ package org.eclipse.collections.impl.bag.immutable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import net.jcip.annotations.Immutable;
+import org.eclipse.collections.api.bag.ImmutableBag;
 import org.eclipse.collections.api.bag.ImmutableBagIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
@@ -35,12 +39,12 @@ import org.eclipse.collections.impl.bag.AbstractBag;
 import org.eclipse.collections.impl.block.factory.PrimitiveFunctions;
 import org.eclipse.collections.impl.block.procedure.MutatingAggregationProcedure;
 import org.eclipse.collections.impl.block.procedure.NonMutatingAggregationProcedure;
+import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.map.mutable.primitive.ObjectDoubleHashMap;
 import org.eclipse.collections.impl.map.mutable.primitive.ObjectLongHashMap;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 
-@Immutable
 public abstract class AbstractImmutableBagIterable<T>
         extends AbstractBag<T>
         implements ImmutableBagIterable<T>
@@ -153,5 +157,59 @@ public abstract class AbstractImmutableBagIterable<T>
     public void clear()
     {
         throw new UnsupportedOperationException("Cannot call clear() on " + this.getClass().getSimpleName());
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V> ImmutableBag<V> countBy(Function<? super T, ? extends V> function)
+    {
+        return this.countBy(function, Bags.mutable.<V>empty()).toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V, P> ImmutableBag<V> countByWith(Function2<? super T, ? super P, ? extends V> function, P parameter)
+    {
+        return this.countByWith(function, parameter, Bags.mutable.<V>empty()).toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public Stream<T> stream()
+    {
+        return StreamSupport.stream(this.spliterator(), false);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public Stream<T> parallelStream()
+    {
+        return StreamSupport.stream(this.spliterator(), true);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public Spliterator<T> spliterator()
+    {
+        return Spliterators.spliterator(this, 0);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public Collection<T> castToCollection()
+    {
+        return this;
     }
 }

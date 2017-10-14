@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -19,7 +19,8 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 
-import net.jcip.annotations.Immutable;
+import org.eclipse.collections.api.bag.ImmutableBag;
+import org.eclipse.collections.api.bag.MutableBagIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.function.Function2;
@@ -37,13 +38,13 @@ import org.eclipse.collections.api.partition.set.PartitionImmutableSet;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.EmptyIterator;
+import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.partition.set.PartitionUnifiedSet;
 
 /**
  * This is a zero element {@link ImmutableSet} which is created by calling the Sets.immutable.empty() method.
  */
-@Immutable
 final class ImmutableEmptySet<T>
         extends AbstractImmutableSet<T>
         implements Serializable
@@ -252,6 +253,42 @@ final class ImmutableEmptySet<T>
     public <V> ImmutableSet<V> flatCollect(Function<? super T, ? extends Iterable<V>> function)
     {
         return Sets.immutable.empty();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V> ImmutableBag<V> countBy(Function<? super T, ? extends V> function)
+    {
+        return Bags.immutable.empty();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V, R extends MutableBagIterable<V>> R countBy(Function<? super T, ? extends V> function, R target)
+    {
+        return target;
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V, P> ImmutableBag<V> countByWith(Function2<? super T, ? super P, ? extends V> function, P parameter)
+    {
+        return Bags.immutable.empty();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V, P, R extends MutableBagIterable<V>> R countByWith(Function2<? super T, ? super P, ? extends V> function, P parameter, R target)
+    {
+        return target;
     }
 
     @Override

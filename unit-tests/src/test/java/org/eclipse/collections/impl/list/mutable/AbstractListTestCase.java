@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -75,6 +75,22 @@ public abstract class AbstractListTestCase
     public void randomAccess_throws()
     {
         Verify.assertThrows(IllegalArgumentException.class, () -> new ListAdapter<>(FastList.newListWith(1, 2, 3)));
+    }
+
+    @Test
+    public void getFirstOptional()
+    {
+        Assert.assertEquals(Integer.valueOf(1), this.newWith(1, 2, 3).getFirstOptional().get());
+        Assert.assertTrue(this.newWith(1, 2, 3).getFirstOptional().isPresent());
+        Assert.assertFalse(this.newWith().getFirstOptional().isPresent());
+    }
+
+    @Test
+    public void getLastOptional()
+    {
+        Assert.assertEquals(Integer.valueOf(3), this.newWith(1, 2, 3).getLastOptional().get());
+        Assert.assertTrue(this.newWith(1, 2, 3).getLastOptional().isPresent());
+        Assert.assertFalse(this.newWith().getLastOptional().isPresent());
     }
 
     @Test
@@ -306,7 +322,7 @@ public abstract class AbstractListTestCase
     @Test
     public void forEachFromToInReverse()
     {
-        MutableList<Integer> result = Lists.mutable.of();
+        MutableList<Integer> result = Lists.mutable.empty();
         this.newWith(1, 2, 3, 4).forEach(3, 2, result::add);
         Assert.assertEquals(FastList.newListWith(4, 3), result);
     }
@@ -314,7 +330,7 @@ public abstract class AbstractListTestCase
     @Test
     public void reverseForEach()
     {
-        MutableList<Integer> result = Lists.mutable.of();
+        MutableList<Integer> result = Lists.mutable.empty();
         MutableList<Integer> collection = this.newWith(1, 2, 3, 4);
         collection.reverseForEach(result::add);
         Assert.assertEquals(FastList.newListWith(4, 3, 2, 1), result);
@@ -323,10 +339,26 @@ public abstract class AbstractListTestCase
     @Test
     public void reverseForEach_emptyList()
     {
-        MutableList<Integer> integers = Lists.mutable.of();
-        MutableList<Integer> results = Lists.mutable.of();
+        MutableList<Integer> integers = Lists.mutable.empty();
+        MutableList<Integer> results = Lists.mutable.empty();
         integers.reverseForEach(results::add);
         Assert.assertEquals(integers, results);
+    }
+
+    @Test
+    public void reverseForEachWithIndex()
+    {
+        MutableList<Integer> result = Lists.mutable.empty();
+        MutableList<Integer> collection = this.newWith(1, 2, 3, 4);
+        collection.reverseForEachWithIndex((each, index) -> result.add(each + index));
+        Assert.assertEquals(FastList.newListWith(7, 5, 3, 1), result);
+    }
+
+    @Test
+    public void reverseForEachWithIndex_emptyList()
+    {
+        MutableList<Integer> integers = Lists.mutable.empty();
+        integers.reverseForEachWithIndex((each, index) -> Assert.assertTrue("Should not be evaluated", false));
     }
 
     @Test
@@ -353,7 +385,7 @@ public abstract class AbstractListTestCase
     {
         ListIterable<Integer> list = this.newWith(1, 4, 3, 2, 1, 4, 1);
         ListIterable<Integer> actual = list.distinct();
-        Verify.assertListsEqual(FastList.newListWith(1, 4, 3, 2), actual.toList());
+        Assert.assertEquals(Lists.mutable.with(1, 4, 3, 2), actual);
     }
 
     @Test
@@ -361,7 +393,18 @@ public abstract class AbstractListTestCase
     {
         ListIterable<String> list = this.newWith("a", "A", "b", "C", "b", "D", "E", "e");
         ListIterable<String> actual = list.distinct(HashingStrategies.fromFunction(String::toLowerCase));
-        Verify.assertListsEqual(FastList.newListWith("a", "b", "C", "D", "E"), actual.toList());
+        Assert.assertEquals(Lists.mutable.with("a", "b", "C", "D", "E"), actual);
+    }
+
+    /**
+     * @since 9.0.
+     */
+    @Test
+    public void distinctBy()
+    {
+        ListIterable<String> list = this.newWith("a", "A", "b", "C", "b", "D", "E", "e");
+        ListIterable<String> actual = list.distinctBy(String::toLowerCase);
+        Assert.assertEquals(Lists.mutable.with("a", "b", "C", "D", "E"), actual);
     }
 
     @Override
@@ -676,7 +719,7 @@ public abstract class AbstractListTestCase
         integers.forEachWithIndex(9, 0, (each, index) -> builder5.append(each).append(index));
         Assert.assertEquals("19282736353443424140", builder5.toString());
 
-        MutableList<Integer> result = Lists.mutable.of();
+        MutableList<Integer> result = Lists.mutable.empty();
         Verify.assertThrows(IndexOutOfBoundsException.class, () -> integers.forEachWithIndex(-1, 0, new AddToList(result)));
         Verify.assertThrows(IndexOutOfBoundsException.class, () -> integers.forEachWithIndex(0, -1, new AddToList(result)));
     }
@@ -684,7 +727,7 @@ public abstract class AbstractListTestCase
     @Test
     public void forEachWithIndexWithFromToInReverse()
     {
-        MutableList<Integer> result = Lists.mutable.of();
+        MutableList<Integer> result = Lists.mutable.empty();
         this.newWith(1, 2, 3).forEachWithIndex(2, 1, new AddToList(result));
         Assert.assertEquals(FastList.newListWith(3, 2), result);
     }
@@ -740,7 +783,7 @@ public abstract class AbstractListTestCase
 
     protected void validateForEachOnRange(MutableList<Integer> list, int from, int to, List<Integer> expectedOutput)
     {
-        List<Integer> outputList = Lists.mutable.of();
+        List<Integer> outputList = Lists.mutable.empty();
         list.forEach(from, to, outputList::add);
 
         Assert.assertEquals(expectedOutput, outputList);
@@ -772,7 +815,7 @@ public abstract class AbstractListTestCase
             int to,
             List<Integer> expectedOutput)
     {
-        MutableList<Integer> outputList = Lists.mutable.of();
+        MutableList<Integer> outputList = Lists.mutable.empty();
         list.forEachWithIndex(from, to, (each, index) -> outputList.add(each));
 
         Assert.assertEquals(expectedOutput, outputList);
@@ -1002,7 +1045,7 @@ public abstract class AbstractListTestCase
     @Test
     public void binarySearch()
     {
-        MutableList<Integer> sortedList = this.newWith(1, 2, 3, 4, 5, 7).toList();
+        MutableList<Integer> sortedList = this.newWith(1, 2, 3, 4, 5, 7);
         Assert.assertEquals(1, sortedList.binarySearch(2));
         Assert.assertEquals(-6, sortedList.binarySearch(6));
         for (Integer integer : sortedList)
@@ -1016,7 +1059,7 @@ public abstract class AbstractListTestCase
     @Test
     public void binarySearchWithComparator()
     {
-        MutableList<Integer> sortedList = this.newWith(1, 2, 3, 4, 5, 7).toSortedList(Comparators.reverseNaturalOrder());
+        MutableList<Integer> sortedList = this.newWith(7, 5, 4, 3, 2, 1);
         Assert.assertEquals(4, sortedList.binarySearch(2, Comparators.reverseNaturalOrder()));
         Assert.assertEquals(-2, sortedList.binarySearch(6, Comparators.reverseNaturalOrder()));
         for (Integer integer : sortedList)

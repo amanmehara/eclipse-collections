@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -70,6 +70,7 @@ import org.eclipse.collections.api.partition.list.PartitionMutableList;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.block.factory.Comparators;
+import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.multimap.list.FastListMultimap;
@@ -1363,6 +1364,14 @@ public final class ListIterate
             return RandomAccessListIterate.distinct(list, hashingStrategy);
         }
         return IterableIterate.distinct(list, hashingStrategy);
+    }
+
+    /**
+     * @since 9.0
+     */
+    public static <T, V> MutableList<T> distinctBy(List<T> list, Function<? super T, ? extends V> function)
+    {
+        return ListIterate.distinct(list, HashingStrategies.fromFunction(function));
     }
 
     /**

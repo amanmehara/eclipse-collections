@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -10,8 +10,14 @@
 
 package org.eclipse.collections.api.collection;
 
-import net.jcip.annotations.Immutable;
+import java.util.Collection;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.bag.ImmutableBag;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.function.Function2;
@@ -47,7 +53,6 @@ import org.eclipse.collections.api.tuple.Pair;
  * The ImmutableCollection interface is "contractually immutable" in that it does not have any mutating
  * methods available on the public interface.
  */
-@Immutable
 public interface ImmutableCollection<T>
         extends RichIterable<T>
 {
@@ -147,6 +152,24 @@ public interface ImmutableCollection<T>
     @Override
     <V> ImmutableObjectDoubleMap<V> sumByDouble(Function<? super T, ? extends V> groupBy, DoubleFunction<? super T> function);
 
+    /**
+     * @since 9.0
+     */
+    @Override
+    default <V> ImmutableBag<V> countBy(Function<? super T, ? extends V> function)
+    {
+        return this.asLazy().<V>collect(function).toBag().toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    default <V, P> ImmutableBag<V> countByWith(Function2<? super T, ? super P, ? extends V> function, P parameter)
+    {
+        return this.asLazy().<P, V>collectWith(function, parameter).toBag().toImmutable();
+    }
+
     @Override
     <V> ImmutableMultimap<V, T> groupBy(Function<? super T, ? extends V> function);
 
@@ -173,4 +196,36 @@ public interface ImmutableCollection<T>
             Function<? super T, ? extends K> groupBy,
             Function0<? extends V> zeroValueFactory,
             Function2<? super V, ? super T, ? extends V> nonMutatingAggregator);
+
+    /**
+     * @since 9.0
+     */
+    default Stream<T> stream()
+    {
+        return StreamSupport.stream(this.spliterator(), false);
+    }
+
+    /**
+     * @since 9.0
+     */
+    default Stream<T> parallelStream()
+    {
+        return StreamSupport.stream(this.spliterator(), true);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    default Spliterator<T> spliterator()
+    {
+        return Spliterators.spliterator(this.iterator(), (long) this.size(), 0);
+    }
+
+    /**
+     * This can be overridden in most implementations to just return this.
+     *
+     * @since 9.0
+     */
+    Collection<T> castToCollection();
 }

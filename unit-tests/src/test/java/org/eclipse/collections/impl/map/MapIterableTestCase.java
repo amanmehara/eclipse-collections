@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -82,6 +82,7 @@ import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.multimap.set.UnifiedSetMultimap;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
+import org.eclipse.collections.impl.string.immutable.CharAdapter;
 import org.eclipse.collections.impl.test.SerializeTestHelper;
 import org.eclipse.collections.impl.test.Verify;
 import org.eclipse.collections.impl.tuple.Tuples;
@@ -112,6 +113,22 @@ public abstract class MapIterableTestCase
             K key2, V value2,
             K key3, V value3,
             K key4, V value4);
+
+    @Test
+    public void stream()
+    {
+        MapIterable<Integer, String> map = this.newMapWithKeysValues(1, "1", 2, "2", 3, "3");
+        Assert.assertEquals("123", CharAdapter.adapt(map.stream().reduce("", (r, s) -> r + s)).toSortedList().makeString(""));
+        Assert.assertEquals(map.reduce((r, s) -> r + s), map.stream().reduce((r, s) -> r + s));
+    }
+
+    @Test
+    public void parallelStream()
+    {
+        MapIterable<Integer, String> map = this.newMapWithKeysValues(1, "1", 2, "2", 3, "3");
+        Assert.assertEquals("123", CharAdapter.adapt(map.stream().reduce("", (r, s) -> r + s)).toSortedList().makeString(""));
+        Assert.assertEquals(map.reduce((r, s) -> r + s), map.stream().reduce((r, s) -> r + s));
+    }
 
     @Test
     public void equalsAndHashCode()
@@ -989,6 +1006,36 @@ public abstract class MapIterableTestCase
                 Character.valueOf('T'),
                 Character.valueOf('w'),
                 Character.valueOf('o')));
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Test
+    public void countBy()
+    {
+        MapIterable<String, Integer> map = this.newMapWithKeysValues("1", 1, "2", 2, "3", 3, "4", 4);
+        Bag<Integer> evensAndOdds = map.countBy(each -> Integer.valueOf(each % 2));
+        Assert.assertEquals(2, evensAndOdds.occurrencesOf(1));
+        Assert.assertEquals(2, evensAndOdds.occurrencesOf(0));
+        Bag<Integer> evensAndOdds2 = map.countBy(each -> Integer.valueOf(each % 2), Bags.mutable.empty());
+        Assert.assertEquals(2, evensAndOdds2.occurrencesOf(1));
+        Assert.assertEquals(2, evensAndOdds2.occurrencesOf(0));
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Test
+    public void countByWith()
+    {
+        MapIterable<String, Integer> map = this.newMapWithKeysValues("1", 1, "2", 2, "3", 3, "4", 4);
+        Bag<Integer> evensAndOdds = map.countByWith((each, parm) -> Integer.valueOf(each % parm), 2);
+        Assert.assertEquals(2, evensAndOdds.occurrencesOf(1));
+        Assert.assertEquals(2, evensAndOdds.occurrencesOf(0));
+        Bag<Integer> evensAndOdds2 = map.countByWith((each, parm) -> Integer.valueOf(each % parm), 2, Bags.mutable.empty());
+        Assert.assertEquals(2, evensAndOdds2.occurrencesOf(1));
+        Assert.assertEquals(2, evensAndOdds2.occurrencesOf(0));
     }
 
     @Test

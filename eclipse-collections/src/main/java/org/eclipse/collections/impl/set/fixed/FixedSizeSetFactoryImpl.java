@@ -10,16 +10,15 @@
 
 package org.eclipse.collections.impl.set.fixed;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.factory.set.FixedSizeSetFactory;
 import org.eclipse.collections.api.set.FixedSizeSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 
-@Immutable
-public class FixedSizeSetFactoryImpl implements FixedSizeSetFactory
+public enum FixedSizeSetFactoryImpl implements FixedSizeSetFactory
 {
+    INSTANCE;
     private static final FixedSizeSet<?> EMPTY_SET = new EmptySet<>();
 
     @Override

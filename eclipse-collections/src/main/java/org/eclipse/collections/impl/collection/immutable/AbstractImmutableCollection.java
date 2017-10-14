@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -15,9 +15,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.BinaryOperator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.bag.ImmutableBag;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.function.Function2;
@@ -39,6 +44,7 @@ import org.eclipse.collections.impl.AbstractRichIterable;
 import org.eclipse.collections.impl.block.factory.PrimitiveFunctions;
 import org.eclipse.collections.impl.block.procedure.MutatingAggregationProcedure;
 import org.eclipse.collections.impl.block.procedure.NonMutatingAggregationProcedure;
+import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.primitive.ObjectDoubleMaps;
 import org.eclipse.collections.impl.factory.primitive.ObjectLongMaps;
@@ -46,7 +52,9 @@ import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.utility.Iterate;
 
-public abstract class AbstractImmutableCollection<T> extends AbstractRichIterable<T> implements ImmutableCollection<T>, Collection<T>
+public abstract class AbstractImmutableCollection<T>
+        extends AbstractRichIterable<T>
+        implements ImmutableCollection<T>, Collection<T>
 {
     protected abstract MutableCollection<T> newMutable(int size);
 
@@ -198,5 +206,59 @@ public abstract class AbstractImmutableCollection<T> extends AbstractRichIterabl
             result.add(batch.toImmutable());
         }
         return result.toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V> ImmutableBag<V> countBy(Function<? super T, ? extends V> function)
+    {
+        return this.countBy(function, Bags.mutable.<V>empty()).toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V, P> ImmutableBag<V> countByWith(Function2<? super T, ? super P, ? extends V> function, P parameter)
+    {
+        return this.countByWith(function, parameter, Bags.mutable.<V>empty()).toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public Stream<T> stream()
+    {
+        return StreamSupport.stream(this.spliterator(), false);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public Stream<T> parallelStream()
+    {
+        return StreamSupport.stream(this.spliterator(), true);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public Spliterator<T> spliterator()
+    {
+        return Spliterators.spliterator(this, 0);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public Collection<T> castToCollection()
+    {
+        return this;
     }
 }

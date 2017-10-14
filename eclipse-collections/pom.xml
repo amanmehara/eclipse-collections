@@ -18,13 +18,13 @@
     <parent>
         <artifactId>eclipse-collections-parent</artifactId>
         <groupId>org.eclipse.collections</groupId>
-        <version>8.2.0-SNAPSHOT</version>
+        <version>9.1.0-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>eclipse-collections</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
     <name>Eclipse Collections Main Library</name>
 
@@ -40,13 +40,6 @@
             <groupId>org.eclipse.collections</groupId>
             <artifactId>eclipse-collections-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <!-- External dependencies -->
-
-        <dependency>
-            <groupId>net.jcip</groupId>
-            <artifactId>jcip-annotations</artifactId>
         </dependency>
 
     </dependencies>
@@ -81,17 +74,13 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
+                <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <instructions>
-                        <Export-Package>org.eclipse.collections.impl.*</Export-Package>
-                        <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
-                        <Import-Package>
-                            net.jcip.annotations;resolution:=optional,*
-                        </Import-Package>
-                        <Bundle-Version>${project.version}</Bundle-Version>
-                    </instructions>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>org.eclipse.collections.impl</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
 

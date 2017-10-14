@@ -1,4 +1,4 @@
-import "copyright.stg"
+import "copyrightAndOthers.stg"
 
 targetPath() ::= "org/eclipse/collections/api/map/primitive"
 
@@ -9,7 +9,7 @@ class(primitive) ::= <<
 >>
 
 body(type, name) ::= <<
-<copyright()>
+<copyrightAndOthers()>
 
 package org.eclipse.collections.api.map.primitive;
 
@@ -48,9 +48,20 @@ public interface Object<name>Map\<K> extends <name>Iterable
 
     void forEachKeyValue(Object<name>Procedure\<? super K> procedure);
 
+    <(flipUniqueValues.(name))(name)>
+
     Object<name>Map\<K> select(Object<name>Predicate\<? super K> predicate);
 
     Object<name>Map\<K> reject(Object<name>Predicate\<? super K> predicate);
+
+    /**
+     * @since 9.0.
+     */
+    default Object<name>Map\<K> tap(<name>Procedure procedure)
+    {
+        this.forEach(procedure);
+        return this;
+    }
 
     /**
      * Follows the same general contract as {@link java.util.AbstractMap#toString()}
@@ -76,4 +87,28 @@ public interface Object<name>Map\<K> extends <name>Iterable
     RichIterable\<Object<name>Pair\<K>\> keyValuesView();
 }
 
+>>
+
+flipUniqueValues ::= [
+    "Byte": "flipUniqueValues",
+    "Short": "flipUniqueValues",
+    "Char": "flipUniqueValues",
+    "Int": "flipUniqueValues",
+    "Long": "flipUniqueValues",
+    "Float": "flipUniqueValues",
+    "Double": "flipUniqueValues",
+    "Boolean": "noMethods"
+    ]
+
+noMethods(name) ::= ""
+
+flipUniqueValues(name) ::= <<
+/**
+ * Return the <name>ObjectMap that is obtained by flipping the direction of this map and making the associations
+ * from value to key.
+ *
+ * @throws IllegalStateException if the <name>ObjectMap contains duplicate values.
+ * @since 9.0
+ */
+<name>ObjectMap\<K> flipUniqueValues();
 >>

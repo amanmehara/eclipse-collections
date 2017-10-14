@@ -13,14 +13,14 @@ package org.eclipse.collections.impl.map.sorted.immutable;
 import java.util.Comparator;
 import java.util.SortedMap;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.factory.map.sorted.ImmutableSortedMapFactory;
 import org.eclipse.collections.api.map.sorted.ImmutableSortedMap;
 import org.eclipse.collections.impl.map.sorted.mutable.TreeSortedMap;
 
-@Immutable
-public final class ImmutableSortedMapFactoryImpl implements ImmutableSortedMapFactory
+public enum ImmutableSortedMapFactoryImpl implements ImmutableSortedMapFactory
 {
+    INSTANCE;
+
     @Override
     public <K, V> ImmutableSortedMap<K, V> empty()
     {

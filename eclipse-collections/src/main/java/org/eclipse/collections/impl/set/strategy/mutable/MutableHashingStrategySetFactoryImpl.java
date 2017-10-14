@@ -10,15 +10,15 @@
 
 package org.eclipse.collections.impl.set.strategy.mutable;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.block.HashingStrategy;
 import org.eclipse.collections.api.factory.set.strategy.MutableHashingStrategySetFactory;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.utility.Iterate;
 
-@Immutable
-public final class MutableHashingStrategySetFactoryImpl implements MutableHashingStrategySetFactory
+public enum MutableHashingStrategySetFactoryImpl implements MutableHashingStrategySetFactory
 {
+    INSTANCE;
+
     @Override
     public <T> MutableSet<T> of(HashingStrategy<? super T> hashingStrategy)
     {

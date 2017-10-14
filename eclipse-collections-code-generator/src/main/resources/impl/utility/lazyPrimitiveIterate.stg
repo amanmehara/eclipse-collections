@@ -1,4 +1,4 @@
-import "copyright.stg"
+import "copyrightAndOthers.stg"
 
 targetPath() ::= "org/eclipse/collections/impl/utility/primitive"
 
@@ -9,7 +9,7 @@ class(primitive) ::= <<
 >>
 
 body(type, name) ::= <<
-<copyright()>
+<copyrightAndOthers()>
 
 package org.eclipse.collections.impl.utility.primitive;
 
@@ -18,10 +18,13 @@ import org.eclipse.collections.api.Lazy<name>Iterable;
 import org.eclipse.collections.api.LazyIterable;
 import org.eclipse.collections.api.block.function.primitive.<name>ToObjectFunction;
 import org.eclipse.collections.api.block.predicate.primitive.<name>Predicate;
+import org.eclipse.collections.api.block.procedure.primitive.<name>Procedure;
 import org.eclipse.collections.impl.factory.primitive.<name>Lists;
 import org.eclipse.collections.impl.lazy.primitive.Collect<name>ToObjectIterable;
+import org.eclipse.collections.impl.lazy.primitive.FlatCollect<name>ToObjectIterable;
 import org.eclipse.collections.impl.lazy.primitive.Lazy<name>IterableAdapter;
 import org.eclipse.collections.impl.lazy.primitive.Select<name>Iterable;
+import org.eclipse.collections.impl.lazy.primitive.Tap<name>Iterable;
 
 /**
  * Lazy<name>Iterate is a factory class which creates "deferred" <type> iterables around the specified <type> iterables. A "deferred"
@@ -34,7 +37,7 @@ import org.eclipse.collections.impl.lazy.primitive.Select<name>Iterable;
  */
 public final class Lazy<name>Iterate
 {
-    private static final Lazy<name>Iterable EMPTY_ITERABLE = <name>Lists.immutable.of().asLazy();
+    private static final Lazy<name>Iterable EMPTY_ITERABLE = <name>Lists.immutable.empty().asLazy();
 
     private Lazy<name>Iterate()
     {
@@ -68,6 +71,18 @@ public final class Lazy<name>Iterate
     }
 
     /**
+     * Creates a deferred transforming and flattening <type> iterable for the specified <type> iterable.
+     *
+     * @since 9.0
+     */
+    public static \<V> LazyIterable\<V> flatCollect(
+            <name>Iterable iterable,
+            <name>ToObjectFunction\<? extends Iterable\<V>\> function)
+    {
+        return new FlatCollect<name>ToObjectIterable\<>(iterable, function);
+    }
+
+    /**
      * Creates a deferred filtering and transforming <type> iterable for the specified <type> iterable.
      */
     public static \<V> LazyIterable\<V> collectIf(
@@ -81,6 +96,16 @@ public final class Lazy<name>Iterate
     public static Lazy<name>Iterable empty()
     {
         return EMPTY_ITERABLE;
+    }
+
+    /**
+     * Creates a deferred tap iterable for the specified iterable.
+     *
+     * @since 9.0
+     */
+    public static Lazy<name>Iterable tap(<name>Iterable iterable, <name>Procedure procedure)
+    {
+        return new Tap<name>Iterable(iterable, procedure);
     }
 }
 

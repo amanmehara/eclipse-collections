@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -23,6 +23,7 @@ import org.eclipse.collections.api.set.sorted.MutableSortedSet;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.block.factory.Predicates;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.SortedSets;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.eclipse.collections.impl.test.SerializeTestHelper;
@@ -73,11 +74,39 @@ public class SortedSetAdapterTest extends AbstractSortedSetTestCase
         Verify.assertSortedSetsEqual(set, list2);
     }
 
+    @Override
+    @Test(expected = UnsupportedOperationException.class)
+    public void detectLastIndex()
+    {
+        this.newWith(1, 2, 3).detectLastIndex(each -> each % 2 == 0);
+    }
+
+    @Override
+    @Test(expected = UnsupportedOperationException.class)
+    public void reverseForEach()
+    {
+        this.newWith(1, 2, 3).reverseForEach(each -> Assert.fail("Should not be evaluated"));
+    }
+
+    @Override
+    @Test(expected = UnsupportedOperationException.class)
+    public void reverseForEachWithIndex()
+    {
+        this.newWith(1, 2, 3).reverseForEachWithIndex((each, index) -> Assert.fail("Should not be evaluated"));
+    }
+
+    @Override
+    @Test(expected = UnsupportedOperationException.class)
+    public void toReversed()
+    {
+        this.newWith(1, 2, 3).toReversed();
+    }
+
     @Test
     public void adapt()
     {
         SortedSet<Integer> integers = new TreeSet<>(FastList.newListWith(1, 2, 3, 4));
-        MutableSortedSet<Integer> adapter1 = SortedSetAdapter.adapt(integers);
+        MutableSortedSet<Integer> adapter1 = SortedSets.adapt(integers);
         MutableSortedSet<Integer> adapter2 = new SortedSetAdapter<Integer>(new TreeSet<>()).with(1, 2, 3, 4);
         Verify.assertEqualsAndHashCode(adapter1, adapter2);
         Verify.assertSortedSetsEqual(adapter1, adapter2);

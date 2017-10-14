@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.LazyIterable;
+import org.eclipse.collections.api.bag.ImmutableBag;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.function.Function2;
@@ -73,6 +73,7 @@ import org.eclipse.collections.impl.block.procedure.primitive.CollectFloatProced
 import org.eclipse.collections.impl.block.procedure.primitive.CollectIntProcedure;
 import org.eclipse.collections.impl.block.procedure.primitive.CollectLongProcedure;
 import org.eclipse.collections.impl.block.procedure.primitive.CollectShortProcedure;
+import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.factory.SortedMaps;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.list.mutable.primitive.BooleanArrayList;
@@ -92,7 +93,6 @@ import org.eclipse.collections.impl.multimap.list.FastListMultimap;
 import org.eclipse.collections.impl.partition.list.PartitionFastList;
 import org.eclipse.collections.impl.utility.MapIterate;
 
-@Immutable
 public abstract class AbstractImmutableSortedMap<K, V>
         extends AbstractMapIterable<K, V>
         implements ImmutableSortedMap<K, V>, SortedMap<K, V>
@@ -229,7 +229,8 @@ public abstract class AbstractImmutableSortedMap<K, V>
     public ImmutableSortedMap<K, V> select(Predicate2<? super K, ? super V> predicate)
     {
         MutableSortedMap<K, V> selectedMap = SortedMaps.mutable.with(this.comparator());
-        this.forEachKeyValue((key, value) -> {
+        this.forEachKeyValue((key, value) ->
+        {
             if (predicate.accept(key, value))
             {
                 selectedMap.put(key, value);
@@ -254,7 +255,8 @@ public abstract class AbstractImmutableSortedMap<K, V>
     public ImmutableSortedMap<K, V> reject(Predicate2<? super K, ? super V> predicate)
     {
         MutableSortedMap<K, V> rejectedMap = SortedMaps.mutable.with(this.comparator());
-        this.forEachKeyValue((key, value) -> {
+        this.forEachKeyValue((key, value) ->
+        {
             if (!predicate.accept(key, value))
             {
                 rejectedMap.put(key, value);
@@ -508,6 +510,12 @@ public abstract class AbstractImmutableSortedMap<K, V>
     }
 
     @Override
+    public void reverseForEachWithIndex(ObjectIntProcedure<? super V> procedure)
+    {
+        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".reverseForEachWithIndex() not implemented yet");
+    }
+
+    @Override
     public LazyIterable<V> asReversed()
     {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".asReversed() not implemented yet");
@@ -583,5 +591,23 @@ public abstract class AbstractImmutableSortedMap<K, V>
     public int detectIndex(Predicate<? super V> predicate)
     {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".detectIndex() not implemented yet");
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V1> ImmutableBag<V1> countBy(Function<? super V, ? extends V1> function)
+    {
+        return this.collect(function, Bags.mutable.<V1>empty()).toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V1, P> ImmutableBag<V1> countByWith(Function2<? super V, ? super P, ? extends V1> function, P parameter)
+    {
+        return this.collectWith(function, parameter, Bags.mutable.<V1>empty()).toImmutable();
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -11,6 +11,7 @@
 package org.eclipse.collections.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.DoubleSummaryStatistics;
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
@@ -34,10 +36,12 @@ import org.eclipse.collections.api.IntIterable;
 import org.eclipse.collections.api.LongIterable;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.ShortIterable;
+import org.eclipse.collections.api.bag.Bag;
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.bag.sorted.MutableSortedBag;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function0;
+import org.eclipse.collections.api.block.procedure.Procedure;
 import org.eclipse.collections.api.collection.primitive.MutableBooleanCollection;
 import org.eclipse.collections.api.collection.primitive.MutableByteCollection;
 import org.eclipse.collections.api.collection.primitive.MutableCharCollection;
@@ -167,14 +171,38 @@ public abstract class AbstractRichIterableTestCase
         Assert.assertEquals(collection.toList(), tapResult);
     }
 
+    private void forEach(Function<Collection<Integer>, Consumer<Integer>> adderProvider)
+    {
+        MutableList<Integer> result = Lists.mutable.of();
+        RichIterable<Integer> template = this.newWith(1, 2, 3, 4);
+        Consumer<Integer> adder = adderProvider.apply(result);
+        if (adder instanceof Procedure<?>)
+        {
+            template.forEach((Procedure<Integer>) adder);
+        }
+        else
+        {
+            template.forEach(adder);
+        }
+        Verify.assertSize(4, result);
+        Verify.assertContainsAll(result, 1, 2, 3, 4);
+    }
+
+    private void forEachProcedure()
+    {
+        this.forEach(CollectionAddProcedure::on);
+    }
+
+    private void forEachConsumer()
+    {
+        this.forEach(collection -> collection::add);
+    }
+
     @Test
     public void forEach()
     {
-        MutableList<Integer> result = Lists.mutable.of();
-        RichIterable<Integer> collection = this.newWith(1, 2, 3, 4);
-        collection.forEach(CollectionAddProcedure.on(result));
-        Verify.assertSize(4, result);
-        Verify.assertContainsAll(result, 1, 2, 3, 4);
+        this.forEachProcedure();
+        this.forEachConsumer();
     }
 
     @Test
@@ -625,9 +653,23 @@ public abstract class AbstractRichIterableTestCase
     }
 
     @Test
+    public void minByOptional()
+    {
+        Assert.assertEquals(Integer.valueOf(1), this.newWith(1, 3, 2).minByOptional(String::valueOf).get());
+        Assert.assertFalse(this.newWith().minByOptional(String::valueOf).isPresent());
+    }
+
+    @Test
     public void maxBy()
     {
         Assert.assertEquals(Integer.valueOf(3), this.newWith(1, 3, 2).maxBy(String::valueOf));
+    }
+
+    @Test
+    public void maxByOptional()
+    {
+        Assert.assertEquals(Integer.valueOf(3), this.newWith(1, 3, 2).maxByOptional(String::valueOf).get());
+        Assert.assertFalse(this.newWith().maxByOptional(String::valueOf).isPresent());
     }
 
     @Test(expected = NullPointerException.class)
@@ -1340,6 +1382,36 @@ public abstract class AbstractRichIterableTestCase
         Appendable builder = new StringBuilder();
         collection.appendString(builder, "[", ", ", "]");
         Assert.assertEquals(collection.toString(), builder.toString());
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Test
+    public void countBy()
+    {
+        RichIterable<Integer> integers = this.newWith(1, 2, 3, 4, 5, 6);
+        Bag<Integer> evensAndOdds = integers.countBy(each -> Integer.valueOf(each % 2));
+        Assert.assertEquals(3, evensAndOdds.occurrencesOf(1));
+        Assert.assertEquals(3, evensAndOdds.occurrencesOf(0));
+        Bag<Integer> evensAndOdds2 = integers.countBy(each -> Integer.valueOf(each % 2), Bags.mutable.empty());
+        Assert.assertEquals(3, evensAndOdds2.occurrencesOf(1));
+        Assert.assertEquals(3, evensAndOdds2.occurrencesOf(0));
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Test
+    public void countByWith()
+    {
+        RichIterable<Integer> integers = this.newWith(1, 2, 3, 4, 5, 6);
+        Bag<Integer> evensAndOdds = integers.countByWith((each, parm) -> Integer.valueOf(each % parm), 2);
+        Assert.assertEquals(3, evensAndOdds.occurrencesOf(1));
+        Assert.assertEquals(3, evensAndOdds.occurrencesOf(0));
+        Bag<Integer> evensAndOdds2 = integers.countByWith((each, parm) -> Integer.valueOf(each % parm), 2, Bags.mutable.empty());
+        Assert.assertEquals(3, evensAndOdds2.occurrencesOf(1));
+        Assert.assertEquals(3, evensAndOdds2.occurrencesOf(0));
     }
 
     @Test

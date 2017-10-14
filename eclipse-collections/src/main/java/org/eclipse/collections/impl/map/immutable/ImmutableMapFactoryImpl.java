@@ -12,14 +12,14 @@ package org.eclipse.collections.impl.map.immutable;
 
 import java.util.Map;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.factory.map.ImmutableMapFactory;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.impl.block.factory.Comparators;
 
-@Immutable
-public final class ImmutableMapFactoryImpl implements ImmutableMapFactory
+public enum ImmutableMapFactoryImpl implements ImmutableMapFactory
 {
+    INSTANCE;
+
     @Override
     public <K, V> ImmutableMap<K, V> empty()
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.concurrent.ExecutorService;
 
 import org.eclipse.collections.api.annotation.Beta;
+import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.bag.sorted.ImmutableSortedBag;
 import org.eclipse.collections.api.bag.sorted.MutableSortedBag;
 import org.eclipse.collections.api.bag.sorted.ParallelSortedBag;
@@ -30,6 +31,7 @@ import org.eclipse.collections.api.block.function.primitive.ShortFunction;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.predicate.Predicate2;
 import org.eclipse.collections.api.block.procedure.Procedure;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.MutableBooleanList;
 import org.eclipse.collections.api.list.primitive.MutableByteList;
@@ -43,6 +45,7 @@ import org.eclipse.collections.api.map.sorted.MutableSortedMap;
 import org.eclipse.collections.api.partition.bag.sorted.PartitionMutableSortedBag;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.bag.mutable.AbstractMutableBagIterable;
+import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.factory.SortedBags;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.list.mutable.primitive.BooleanArrayList;
@@ -124,6 +127,24 @@ public abstract class AbstractMutableSortedBag<T>
     {
         MutableSortedBag<T> result = TreeBag.newBag(this.comparator());
         return IterableIterate.dropWhile(this, predicate, result);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V> MutableBag<V> countBy(Function<? super T, ? extends V> function)
+    {
+        return this.countBy(function, Bags.mutable.empty());
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V, P> MutableBag<V> countByWith(Function2<? super T, ? super P, ? extends V> function, P parameter)
+    {
+        return this.countByWith(function, parameter, Bags.mutable.empty());
     }
 
     @Override
@@ -267,6 +288,12 @@ public abstract class AbstractMutableSortedBag<T>
     public void reverseForEach(Procedure<? super T> procedure)
     {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".reverseForEach() not implemented yet");
+    }
+
+    @Override
+    public void reverseForEachWithIndex(ObjectIntProcedure<? super T> procedure)
+    {
+        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".reverseForEachWithIndex() not implemented yet");
     }
 
     @Override

@@ -10,17 +10,21 @@
 
 package org.eclipse.collections.impl.factory;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import org.eclipse.collections.api.factory.list.FixedSizeListFactory;
 import org.eclipse.collections.api.factory.list.ImmutableListFactory;
+import org.eclipse.collections.api.factory.list.MutableListFactory;
 import org.eclipse.collections.api.list.FixedSizeList;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.list.Interval;
 import org.eclipse.collections.impl.list.mutable.FastList;
+import org.eclipse.collections.impl.list.mutable.MultiReaderFastList;
 import org.eclipse.collections.impl.test.Verify;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class ListsTest
@@ -99,6 +103,18 @@ public class ListsTest
     }
 
     @Test
+    public void multiReader()
+    {
+        MutableListFactory listFactory = Lists.multiReader;
+        Assert.assertEquals(MultiReaderFastList.newList(), listFactory.of());
+        Verify.assertInstanceOf(MultiReaderFastList.class, listFactory.of());
+        Assert.assertEquals(MultiReaderFastList.newListWith(1), listFactory.of(1));
+        Verify.assertInstanceOf(MultiReaderFastList.class, listFactory.of(1));
+        Assert.assertEquals(MultiReaderFastList.newListWith(1, 2, 3), listFactory.ofAll(FastList.newListWith(1, 2, 3)));
+        Verify.assertInstanceOf(MultiReaderFastList.class, listFactory.ofAll(FastList.newListWith(1, 2, 3)));
+    }
+
+    @Test
     public void castToList()
     {
         List<Object> list = Lists.immutable.of().castToList();
@@ -132,6 +148,139 @@ public class ListsTest
         Assert.assertTrue(Lists.immutable.of().isEmpty());
         Assert.assertSame(Lists.immutable.of(), Lists.immutable.of());
         Verify.assertPostSerializedIdentity(Lists.immutable.of());
+    }
+
+    @Test
+    public void ofInitialCapacity()
+    {
+        MutableList<String> list1 = Lists.mutable.ofInitialCapacity(0);
+        this.assertPresizedListEquals(0, (FastList<String>) list1);
+
+        MutableList<String> list2 = Lists.mutable.ofInitialCapacity(5);
+        this.assertPresizedListEquals(5, (FastList<String>) list2);
+
+        MutableList<String> list3 = Lists.mutable.ofInitialCapacity(20);
+        this.assertPresizedListEquals(20, (FastList<String>) list3);
+
+        MutableList<String> list4 = Lists.mutable.ofInitialCapacity(60);
+        this.assertPresizedListEquals(60, (FastList<String>) list4);
+
+        MutableList<String> list5 = Lists.mutable.ofInitialCapacity(64);
+        this.assertPresizedListEquals(64, (FastList<String>) list5);
+
+        MutableList<String> list6 = Lists.mutable.ofInitialCapacity(65);
+        this.assertPresizedListEquals(65, (FastList<String>) list6);
+
+        Verify.assertThrows(IllegalArgumentException.class, () -> Lists.mutable.ofInitialCapacity(-12));
+    }
+
+    @Test
+    public void withInitialCapacity()
+    {
+        MutableList<String> list1 = Lists.mutable.withInitialCapacity(0);
+        this.assertPresizedListEquals(0, (FastList<String>) list1);
+
+        MutableList<String> list2 = Lists.mutable.withInitialCapacity(14);
+        this.assertPresizedListEquals(14, (FastList<String>) list2);
+
+        MutableList<String> list3 = Lists.mutable.withInitialCapacity(17);
+        this.assertPresizedListEquals(17, (FastList<String>) list3);
+
+        MutableList<String> list4 = Lists.mutable.withInitialCapacity(25);
+        this.assertPresizedListEquals(25, (FastList<String>) list4);
+
+        MutableList<String> list5 = Lists.mutable.withInitialCapacity(32);
+        this.assertPresizedListEquals(32, (FastList<String>) list5);
+
+        Verify.assertThrows(IllegalArgumentException.class, () -> Lists.mutable.withInitialCapacity(-6));
+    }
+
+    private void assertPresizedListEquals(int initialCapacity, FastList<String> list)
+    {
+        Assume.assumeTrue(System.getProperty("java.version").startsWith("1.8."));
+        try
+        {
+            Field itemsField = FastList.class.getDeclaredField("items");
+            itemsField.setAccessible(true);
+            Object[] items = (Object[]) itemsField.get(list);
+            Assert.assertEquals(initialCapacity, items.length);
+        }
+        catch (SecurityException ignored)
+        {
+            Assert.fail("Unable to modify the visibility of the field 'items' on FastList");
+        }
+        catch (NoSuchFieldException ignored)
+        {
+            Assert.fail("No field named 'items' in FastList");
+        }
+        catch (IllegalAccessException ignored)
+        {
+            Assert.fail("No access to the field 'items' in FastList");
+        }
+    }
+
+    @Test
+    public void multiReaderOfInitialCapacity()
+    {
+        MutableList<String> list1 = Lists.multiReader.ofInitialCapacity(0);
+        ListsTest.assertPresizedMultiReaderListEquals(0, (MultiReaderFastList<String>) list1);
+
+        MutableList<String> list2 = Lists.multiReader.ofInitialCapacity(5);
+        ListsTest.assertPresizedMultiReaderListEquals(5, (MultiReaderFastList<String>) list2);
+
+        MutableList<String> list3 = Lists.multiReader.ofInitialCapacity(20);
+        ListsTest.assertPresizedMultiReaderListEquals(20, (MultiReaderFastList<String>) list3);
+
+        MutableList<String> list4 = Lists.multiReader.ofInitialCapacity(60);
+        ListsTest.assertPresizedMultiReaderListEquals(60, (MultiReaderFastList<String>) list4);
+
+        MutableList<String> list5 = Lists.multiReader.ofInitialCapacity(64);
+        ListsTest.assertPresizedMultiReaderListEquals(64, (MultiReaderFastList<String>) list5);
+
+        MutableList<String> list6 = Lists.multiReader.ofInitialCapacity(65);
+        ListsTest.assertPresizedMultiReaderListEquals(65, (MultiReaderFastList<String>) list6);
+
+        Verify.assertThrows(IllegalArgumentException.class, () -> Lists.multiReader.ofInitialCapacity(-12));
+    }
+
+    @Test
+    public void multiReaderWithInitialCapacity()
+    {
+        MutableList<String> list1 = Lists.multiReader.withInitialCapacity(0);
+        ListsTest.assertPresizedMultiReaderListEquals(0, (MultiReaderFastList<String>) list1);
+
+        MutableList<String> list2 = Lists.multiReader.withInitialCapacity(14);
+        ListsTest.assertPresizedMultiReaderListEquals(14, (MultiReaderFastList<String>) list2);
+
+        MutableList<String> list3 = Lists.multiReader.withInitialCapacity(17);
+        ListsTest.assertPresizedMultiReaderListEquals(17, (MultiReaderFastList<String>) list3);
+
+        MutableList<String> list4 = Lists.multiReader.withInitialCapacity(25);
+        ListsTest.assertPresizedMultiReaderListEquals(25, (MultiReaderFastList<String>) list4);
+
+        MutableList<String> list5 = Lists.multiReader.withInitialCapacity(32);
+        ListsTest.assertPresizedMultiReaderListEquals(32, (MultiReaderFastList<String>) list5);
+
+        Verify.assertThrows(IllegalArgumentException.class, () -> Lists.multiReader.withInitialCapacity(-6));
+    }
+
+    private static void assertPresizedMultiReaderListEquals(int initialCapacity, MultiReaderFastList<String> list)
+    {
+        Assume.assumeTrue(System.getProperty("java.version").startsWith("1.8."));
+        try
+        {
+            Field delegateField = MultiReaderFastList.class.getDeclaredField("delegate");
+            delegateField.setAccessible(true);
+            FastList<String> delegate = (FastList<String>) delegateField.get(list);
+            Field itemsField = FastList.class.getDeclaredField("items");
+            itemsField.setAccessible(true);
+            Object[] items = (Object[]) itemsField.get(delegate);
+            Assert.assertEquals(initialCapacity, items.length);
+        }
+        catch (SecurityException | NoSuchFieldException | IllegalAccessException e)
+        {
+            throw new AssertionError(e);
+        }
     }
 
     @Test

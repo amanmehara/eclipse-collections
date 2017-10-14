@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -20,7 +20,6 @@ import java.util.ListIterator;
 import java.util.RandomAccess;
 import java.util.concurrent.ExecutorService;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.block.HashingStrategy;
 import org.eclipse.collections.api.block.function.Function;
@@ -62,6 +61,7 @@ import org.eclipse.collections.api.stack.MutableStack;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.block.factory.Functions;
+import org.eclipse.collections.impl.block.factory.HashingStrategies;
 import org.eclipse.collections.impl.block.procedure.CollectIfProcedure;
 import org.eclipse.collections.impl.block.procedure.CollectProcedure;
 import org.eclipse.collections.impl.block.procedure.FlatCollectProcedure;
@@ -99,7 +99,6 @@ import org.eclipse.collections.impl.utility.OrderedIterate;
  * This class is the parent class for all ImmutableLists.  All implementations of ImmutableList must implement the List
  * interface so anArrayList.equals(anImmutableList) can return true when the contents and order are the same.
  */
-@Immutable
 abstract class AbstractImmutableList<T>
         extends AbstractImmutableCollection<T>
         implements ImmutableList<T>, List<T>
@@ -575,6 +574,15 @@ abstract class AbstractImmutableList<T>
     }
 
     @Override
+    public void reverseForEachWithIndex(ObjectIntProcedure<? super T> procedure)
+    {
+        if (this.notEmpty())
+        {
+            this.forEachWithIndex(this.size() - 1, 0, procedure);
+        }
+    }
+
+    @Override
     public int indexOf(Object object)
     {
         int n = this.size();
@@ -691,6 +699,15 @@ abstract class AbstractImmutableList<T>
     public ImmutableList<T> distinct(HashingStrategy<? super T> hashingStrategy)
     {
         return ListIterate.distinct(this.castToList(), hashingStrategy).toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V> ImmutableList<T> distinctBy(Function<? super T, ? extends V> function)
+    {
+        return this.distinct(HashingStrategies.fromFunction(function));
     }
 
     @Override

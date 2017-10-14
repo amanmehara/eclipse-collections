@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -14,9 +14,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.LazyIterable;
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.bag.ImmutableBag;
 import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.bag.sorted.ImmutableSortedBag;
 import org.eclipse.collections.api.bag.sorted.MutableSortedBag;
@@ -34,6 +34,7 @@ import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.predicate.Predicate2;
 import org.eclipse.collections.api.block.predicate.primitive.IntPredicate;
 import org.eclipse.collections.api.block.procedure.Procedure;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -58,6 +59,7 @@ import org.eclipse.collections.impl.bag.sorted.mutable.TreeBag;
 import org.eclipse.collections.impl.block.factory.Comparators;
 import org.eclipse.collections.impl.block.factory.Functions;
 import org.eclipse.collections.impl.block.factory.Predicates;
+import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Stacks;
 import org.eclipse.collections.impl.list.mutable.FastList;
@@ -79,7 +81,6 @@ import org.eclipse.collections.impl.utility.Iterate;
 /**
  * @since 7.0
  */
-@Immutable
 abstract class AbstractImmutableSortedBag<T>
         extends AbstractImmutableBagIterable<T>
         implements ImmutableSortedBag<T>
@@ -106,6 +107,24 @@ abstract class AbstractImmutableSortedBag<T>
     protected Object writeReplace()
     {
         return new ImmutableSortedBagSerializationProxy<>(this);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V> ImmutableBag<V> countBy(Function<? super T, ? extends V> function)
+    {
+        return this.collect(function, Bags.mutable.<V>empty()).toImmutable();
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V, P> ImmutableBag<V> countByWith(Function2<? super T, ? super P, ? extends V> function, P parameter)
+    {
+        return this.collectWith(function, parameter, Bags.mutable.<V>empty()).toImmutable();
     }
 
     @Override
@@ -154,7 +173,8 @@ abstract class AbstractImmutableSortedBag<T>
     public PartitionImmutableSortedBag<T> partition(Predicate<? super T> predicate)
     {
         PartitionMutableSortedBag<T> result = new PartitionTreeBag<>(this.comparator());
-        this.forEachWithOccurrences((each, index) -> {
+        this.forEachWithOccurrences((each, index) ->
+        {
             MutableSortedBag<T> bucket = predicate.accept(each) ? result.getSelected() : result.getRejected();
             bucket.addOccurrences(each, index);
         });
@@ -165,7 +185,8 @@ abstract class AbstractImmutableSortedBag<T>
     public <P> PartitionImmutableSortedBag<T> partitionWith(Predicate2<? super T, ? super P> predicate, P parameter)
     {
         PartitionMutableSortedBag<T> result = new PartitionTreeBag<>(this.comparator());
-        this.forEachWithOccurrences((each, index) -> {
+        this.forEachWithOccurrences((each, index) ->
+        {
             MutableSortedBag<T> bucket = predicate.accept(each, parameter)
                     ? result.getSelected()
                     : result.getRejected();
@@ -250,7 +271,8 @@ abstract class AbstractImmutableSortedBag<T>
     public ImmutableSortedBag<T> selectByOccurrences(IntPredicate predicate)
     {
         MutableSortedBag<T> result = TreeBag.newBag(this.comparator());
-        this.forEachWithOccurrences((each, occurrences) -> {
+        this.forEachWithOccurrences((each, occurrences) ->
+        {
             if (predicate.accept(occurrences))
             {
                 result.addOccurrences(each, occurrences);
@@ -264,7 +286,8 @@ abstract class AbstractImmutableSortedBag<T>
     {
         Comparator<? super S> comparator = (Comparator<? super S>) this.comparator();
         MutableSortedBag<S> result = TreeBag.newBag(comparator);
-        this.forEachWithOccurrences((each, occurrences) -> {
+        this.forEachWithOccurrences((each, occurrences) ->
+        {
             if (clazz.isInstance(each))
             {
                 result.addOccurrences(clazz.cast(each), occurrences);
@@ -279,7 +302,8 @@ abstract class AbstractImmutableSortedBag<T>
         MutableList<Pair<T, S>> list = FastList.newList();
         Iterator<S> iterator = that.iterator();
 
-        this.forEachWithOccurrences((each, parameter) -> {
+        this.forEachWithOccurrences((each, parameter) ->
+        {
             for (int i = 0; i < parameter; i++)
             {
                 if (iterator.hasNext())
@@ -299,7 +323,8 @@ abstract class AbstractImmutableSortedBag<T>
         if (target instanceof MutableBag)
         {
             MutableBag<S> targetBag = (MutableBag<S>) target;
-            this.forEachWithOccurrences((each, occurrences) -> {
+            this.forEachWithOccurrences((each, occurrences) ->
+            {
                 if (iterator.hasNext())
                 {
                     targetBag.addOccurrences((S) Tuples.pair(each, iterator.next()), occurrences);
@@ -308,7 +333,8 @@ abstract class AbstractImmutableSortedBag<T>
         }
         else
         {
-            this.forEachWithOccurrences((each, occurrences) -> {
+            this.forEachWithOccurrences((each, occurrences) ->
+            {
                 for (int i = 0; i < occurrences; i++)
                 {
                     if (iterator.hasNext())
@@ -412,6 +438,12 @@ abstract class AbstractImmutableSortedBag<T>
     public void reverseForEach(Procedure<? super T> procedure)
     {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".reverseForEach() not implemented yet");
+    }
+
+    @Override
+    public void reverseForEachWithIndex(ObjectIntProcedure<? super T> procedure)
+    {
+        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".reverseForEachWithIndex() not implemented yet");
     }
 
     @Override

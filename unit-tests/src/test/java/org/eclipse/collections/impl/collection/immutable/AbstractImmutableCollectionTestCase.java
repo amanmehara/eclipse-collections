@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -14,8 +14,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.eclipse.collections.api.RichIterable;
+import org.eclipse.collections.api.bag.Bag;
+import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.block.function.Function0;
 import org.eclipse.collections.api.block.function.Function2;
 import org.eclipse.collections.api.block.predicate.Predicate;
@@ -46,7 +50,10 @@ import org.eclipse.collections.impl.block.factory.PrimitiveFunctions;
 import org.eclipse.collections.impl.block.factory.Procedures;
 import org.eclipse.collections.impl.block.function.AddFunction;
 import org.eclipse.collections.impl.block.function.PassThruFunction0;
+import org.eclipse.collections.impl.collector.Collectors2;
+import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.SortedBags;
 import org.eclipse.collections.impl.list.Interval;
 import org.eclipse.collections.impl.list.mutable.FastList;
 import org.eclipse.collections.impl.set.sorted.mutable.TreeSortedSet;
@@ -73,6 +80,103 @@ public abstract class AbstractImmutableCollectionTestCase
     protected abstract ImmutableCollection<Integer> classUnderTest();
 
     protected abstract <T> MutableCollection<T> newMutable();
+
+    /**
+     * @since 9.0
+     */
+    @Test
+    public void stream()
+    {
+        Assert.assertEquals(
+                this.classUnderTest().stream().collect(Collectors2.toBag()),
+                this.classUnderTest().reduceInPlace(Collectors2.toBag()));
+        Supplier<MutableBag<Integer>> supplier = Bags.mutable::empty;
+        Assert.assertEquals(
+                this.classUnderTest().stream().collect(supplier, MutableBag::add, MutableBag::withAll),
+                this.classUnderTest().reduceInPlace(supplier, MutableBag::add));
+        Optional<Integer> expectedReduce = this.classUnderTest().reduce(Integer::sum);
+        if (expectedReduce.isPresent())
+        {
+            Assert.assertEquals(
+                    this.classUnderTest().stream().reduce(Integer::sum).get(),
+                    expectedReduce.get());
+        }
+        long count = this.classUnderTest().stream().filter(integer -> integer % 2 == 0).count();
+        if (count > 0)
+        {
+            Assert.assertTrue(this.classUnderTest().stream().anyMatch(integer -> integer % 2 == 0));
+        }
+        else
+        {
+            Assert.assertTrue(this.classUnderTest().stream().noneMatch(integer -> integer % 2 == 0));
+        }
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Test
+    public void parallelStream()
+    {
+        Assert.assertEquals(
+                this.classUnderTest().parallelStream().collect(Collectors2.toBag()),
+                this.classUnderTest().reduceInPlace(Collectors2.toBag()));
+        Supplier<MutableBag<Integer>> supplier = Bags.mutable::empty;
+        Assert.assertEquals(
+                this.classUnderTest().parallelStream().collect(supplier, MutableBag::add, MutableBag::withAll),
+                this.classUnderTest().reduceInPlace(supplier, MutableBag::add));
+        Optional<Integer> expectedReduce = this.classUnderTest().reduce(Integer::sum);
+        if (expectedReduce.isPresent())
+        {
+            Assert.assertEquals(
+                    this.classUnderTest().parallelStream().reduce(Integer::sum).get(),
+                    expectedReduce.get());
+        }
+        long count = this.classUnderTest().parallelStream().filter(integer -> integer % 2 == 0).count();
+        if (count > 0)
+        {
+            Assert.assertTrue(this.classUnderTest().parallelStream().anyMatch(integer -> integer % 2 == 0));
+        }
+        else
+        {
+            Assert.assertTrue(this.classUnderTest().parallelStream().noneMatch(integer -> integer % 2 == 0));
+        }
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Test(expected = UnsupportedOperationException.class)
+    public void castToCollection()
+    {
+        this.classUnderTest().castToCollection().add(0);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Test
+    public void countBy()
+    {
+        ImmutableCollection<Integer> integers = this.classUnderTest();
+        Bag<Integer> results = integers.countBy(each -> each);
+        Verify.assertSize(integers.size(), results);
+        Bag<Integer> results2 = integers.countBy(each -> each, SortedBags.mutable.empty());
+        Verify.assertSize(integers.size(), results2);
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Test
+    public void countByWith()
+    {
+        ImmutableCollection<Integer> integers = this.classUnderTest();
+        Bag<Integer> results = integers.countByWith((each, parm) -> each, null);
+        Verify.assertSize(integers.size(), results);
+        Bag<Integer> results2 = integers.countByWith((each, parm) -> each, null, SortedBags.mutable.empty());
+        Verify.assertSize(integers.size(), results2);
+    }
 
     @Test
     public void selectWith()

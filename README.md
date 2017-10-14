@@ -1,4 +1,4 @@
-Eclipse Collections
+![logo]
 ===================
 
 [![][travis img]][travis]
@@ -148,46 +148,50 @@ Acquiring Eclipse Collections
 <dependency>
   <groupId>org.eclipse.collections</groupId>
   <artifactId>eclipse-collections-api</artifactId>
-  <version>8.1.0</version>
+  <version>9.0.0</version>
 </dependency>
 
 <dependency>
   <groupId>org.eclipse.collections</groupId>
   <artifactId>eclipse-collections</artifactId>
-  <version>8.1.0</version>
+  <version>9.0.0</version>
 </dependency>
 
 <dependency>
   <groupId>org.eclipse.collections</groupId>
   <artifactId>eclipse-collections-testutils</artifactId>
-  <version>8.1.0</version>
+  <version>9.0.0</version>
   <scope>test</scope>
 </dependency>
 
 <dependency>
   <groupId>org.eclipse.collections</groupId>
   <artifactId>eclipse-collections-forkjoin</artifactId>
-  <version>8.1.0</version>
+  <version>9.0.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-compile 'org.eclipse.collections:eclipse-collections-api:8.1.0'
-compile 'org.eclipse.collections:eclipse-collections:8.1.0'
-testCompile 'org.eclipse.collections:eclipse-collections-testutils:8.1.0'
-compile 'org.eclipse.collections:eclipse-collections-forkjoin:8.1.0'
+compile 'org.eclipse.collections:eclipse-collections-api:9.0.0'
+compile 'org.eclipse.collections:eclipse-collections:9.0.0'
+testCompile 'org.eclipse.collections:eclipse-collections-testutils:9.0.0'
+compile 'org.eclipse.collections:eclipse-collections-forkjoin:9.0.0'
 ```
 
 ### Ivy
 
 ```xml
-<dependency org="org.eclipse.collections" name="eclipse-collections-api" rev="8.1.0" />
-<dependency org="org.eclipse.collections" name="eclipse-collections" rev="8.1.0" />
-<dependency org="org.eclipse.collections" name="eclipse-collections-testutils" rev="8.1.0" />
-<dependency org="org.eclipse.collections" name="eclipse-collections-forkjoin" rev="8.1.0"/>
+<dependency org="org.eclipse.collections" name="eclipse-collections-api" rev="9.0.0" />
+<dependency org="org.eclipse.collections" name="eclipse-collections" rev="9.0.0" />
+<dependency org="org.eclipse.collections" name="eclipse-collections-testutils" rev="9.0.0" />
+<dependency org="org.eclipse.collections" name="eclipse-collections-forkjoin" rev="9.0.0"/>
 ```
+
+### OSGi Bundle
+
+Eclipse software repository location: http://download.eclipse.org/collections/9.0.0/repository
 
 Additional information
 ----------------------
@@ -199,6 +203,8 @@ Additional information
 * Mailing lists: https://dev.eclipse.org/mailman/listinfo/collections-dev
 * Eclipse PMI: https://projects.eclipse.org/projects/technology.collections
 * Forum: https://www.eclipse.org/forums/index.php?t=thread&frm_id=329
+
+[logo]:https://github.com/eclipse/eclipse-collections/blob/master/artwork/eclipse-collections-logo.png
 
 [travis]:https://travis-ci.org/eclipse/eclipse-collections
 [travis img]:https://travis-ci.org/eclipse/eclipse-collections.svg?branch=master
@@ -214,4 +220,7 @@ Additional information
 
 [license-edl]:LICENSE-EDL-1.0.txt
 [license-edl img]:https://img.shields.io/badge/License-EDL-blue.svg
+
+[sonarqube]:https://sonarqube.com/dashboard?id=org.eclipse.collections%3Aeclipse-collections-parent
+[sonarqube img]:https://sonarqube.com/api/badges/gate?key=org.eclipse.collections:eclipse-collections-parent
 

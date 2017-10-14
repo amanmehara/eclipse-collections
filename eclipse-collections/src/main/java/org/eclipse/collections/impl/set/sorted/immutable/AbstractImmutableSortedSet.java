@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ExecutorService;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.LazyIterable;
 import org.eclipse.collections.api.block.function.Function;
 import org.eclipse.collections.api.block.function.Function2;
@@ -30,6 +29,7 @@ import org.eclipse.collections.api.block.function.primitive.ShortFunction;
 import org.eclipse.collections.api.block.predicate.Predicate;
 import org.eclipse.collections.api.block.predicate.Predicate2;
 import org.eclipse.collections.api.block.procedure.Procedure;
+import org.eclipse.collections.api.block.procedure.primitive.ObjectIntProcedure;
 import org.eclipse.collections.api.collection.MutableCollection;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -97,7 +97,6 @@ import org.eclipse.collections.impl.utility.internal.SortedSetIterables;
  * This class is the parent class for all ImmutableSortedSets.  All implementations of ImmutableSortedSet must implement the SortedSet
  * interface so an TreeSet.equals(anImmutableSortedSet) can return true when the contents are the same.
  */
-@Immutable
 abstract class AbstractImmutableSortedSet<T> extends AbstractImmutableCollection<T>
         implements ImmutableSortedSet<T>, SortedSet<T>
 {
@@ -505,6 +504,12 @@ abstract class AbstractImmutableSortedSet<T> extends AbstractImmutableCollection
     public void reverseForEach(Procedure<? super T> procedure)
     {
         throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".reverseForEach() not implemented yet");
+    }
+
+    @Override
+    public void reverseForEachWithIndex(ObjectIntProcedure<? super T> procedure)
+    {
+        throw new UnsupportedOperationException(this.getClass().getSimpleName() + ".reverseForEachWithIndex() not implemented yet");
     }
 
     @Override

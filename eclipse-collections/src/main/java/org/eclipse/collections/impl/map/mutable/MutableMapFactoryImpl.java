@@ -10,13 +10,13 @@
 
 package org.eclipse.collections.impl.map.mutable;
 
-import net.jcip.annotations.Immutable;
 import org.eclipse.collections.api.factory.map.MutableMapFactory;
 import org.eclipse.collections.api.map.MutableMap;
 
-@Immutable
-public final class MutableMapFactoryImpl implements MutableMapFactory
+public enum MutableMapFactoryImpl implements MutableMapFactory
 {
+    INSTANCE;
+
     @Override
     public <K, V> MutableMap<K, V> empty()
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -152,6 +152,12 @@ public final class ArrayListAdapter<T>
     public void reverseForEach(Procedure<? super T> procedure)
     {
         ArrayListIterate.reverseForEach(this.delegate, procedure);
+    }
+
+    @Override
+    public void reverseForEachWithIndex(ObjectIntProcedure<? super T> procedure)
+    {
+        ArrayListIterate.reverseForEachWithIndex(this.delegate, procedure);
     }
 
     @Override
@@ -452,6 +458,15 @@ public final class ArrayListAdapter<T>
     public ArrayListAdapter<T> distinct(HashingStrategy<? super T> hashingStrategy)
     {
         return this.wrap(ArrayListIterate.distinct(this.delegate, hashingStrategy));
+    }
+
+    /**
+     * @since 9.0
+     */
+    @Override
+    public <V> ArrayListAdapter<T> distinctBy(Function<? super T, ? extends V> function)
+    {
+        return this.wrap(ArrayListIterate.distinctBy(this.delegate, function));
     }
 
     @Override

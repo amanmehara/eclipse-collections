@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Goldman Sachs.
+ * Copyright (c) 2017 Goldman Sachs and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Eclipse Distribution License v. 1.0 which accompany this distribution.
@@ -194,6 +194,15 @@ public interface ListIterable<T>
      */
     ListIterable<T> distinct(HashingStrategy<? super T> hashingStrategy);
 
+    /**
+     * Returns a new {@code ListIterable} containing the distinct elements in this list.
+     * The specified function will be used to create a HashingStrategy to unique the elements.
+     *
+     * @see ListIterable#distinct(HashingStrategy)
+     * @since 9.0
+     */
+    <V> ListIterable<T> distinctBy(Function<? super T, ? extends V> function);
+
     @Override
     <S> ListIterable<Pair<T, S>> zip(Iterable<S> that);
 
@@ -274,4 +283,10 @@ public interface ListIterable<T>
      */
     @Override
     int hashCode();
+
+    /**
+     * @see List#subList(int, int)
+     * @since 6.0
+     */
+    ListIterable<T> subList(int fromIndex, int toIndex);
 }
